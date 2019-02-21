@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
+    "lint": "eslint sources/",
     "precommit": "npm run lint",
     "prepush": "npm run lint"
   },
