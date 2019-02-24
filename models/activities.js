@@ -1,6 +1,6 @@
-let mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-let Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 
 const ActivitySchema = new Schema({
     Details: String,

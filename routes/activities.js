@@ -9,16 +9,22 @@ router.get('/', function (req, res, next) {
 			res.send(data);
 		}
 		else {
-			throw err;
+			console.log('error');
+			res.send({status: 'error'});
 		}
-	})
+	});
 });
 
 router.post('/', function (req, res, next) {
 	let activity = new Activity(req.body);
 	activity.save((err) => {
-		if (err) throw err;
-		res.send("Activity saved")
+		if (err) {
+			console.log('error');
+			res.send({status: 'error'});
+		}
+		else {
+			res.send("Activity saved");
+		}
 	});
 });
 

@@ -6,11 +6,12 @@ const Status = require('../models/statuses');
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 	Status.find({}, function (err, data) {
-		if (!err) {
-			res.send(data);
+		if (err) {
+			console.log('error');
+			res.send({status: 'error'});
 		}
 		else {
-			throw err;
+			res.send(data);
 		}
 	})
 });
@@ -18,8 +19,13 @@ router.get('/', function (req, res, next) {
 router.post('/', function (req, res, next) {
 	let status = new Status(req.body);
 	status.save((err) => {
-		if (err) throw err;
-		res.send("Status type saved")
+		if (err) {
+			console.log('error');
+			res.send({status: 'error'});
+		}
+		else {
+			res.send("Status type saved");
+		}
 	});
 });
 

@@ -1,18 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const Contact = require('../models/contacts');
-var ObjectID = require('mongodb').ObjectID;
+const ObjectID = require('mongodb').ObjectID;
 
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 	Contact.find({}, function (err, data) {
-		if (err) throw err; 
-		else { 
-			let mappedArr = data.map(function(el) {
-				el.id = el._id;
-				return el;
-			});
+		if (err) {
+			console.log('error');
+			res.send({status: 'error'});
+		}
+		else {
 			res.send(data);
 		}
 	})
@@ -21,8 +20,13 @@ router.get('/', function (req, res, next) {
 router.post('/', function (req, res, next) {
 	let contact = new Contact(req.body);
 	contact.save((err) => {
-		if (err) throw err;
-		res.send("Contact saved")
+		if (err) {
+			console.log('error');
+			res.send({status: 'error'});
+		}
+		else {
+			res.send("Contact saved");
+		}
 	});
 });
 
@@ -44,7 +48,14 @@ router.put('/:id', function (req, res, next) {
 			}
 		},
 		function (err, result) {
-			console.log(result);
+			if (err) {
+				console.log('error');
+				res.send({status: 'error'});
+			}
+			else {
+				console.log('result');
+				res.send(result);
+			}
 		}
 	);
 });
@@ -53,7 +64,7 @@ router.delete('/:id', function (req, res, next) {
 	Contact.findOneAndDelete(
 		{ _id: ObjectID(req.body._id) },
 		function (err, result) {
-			console.log(result);
+			res.send(result);
 		}
 	);
 });

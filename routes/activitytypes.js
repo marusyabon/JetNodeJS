@@ -8,9 +8,10 @@ router.get('/', function (req, res, next) {
 	Activitytype.find({}, function (err, data) {
 		if (!err) {
 			res.send(data);
-		} 
-		else { 
-			throw err; 
+		}
+		else {
+			console.log('error');
+			res.send({status: 'error'});
 		}
 	})
 });
@@ -18,8 +19,13 @@ router.get('/', function (req, res, next) {
 router.post('/', function (req, res, next) {
 	let activitytype = new Activitytype(req.body);
 	activitytype.save((err) => {
-		if (err) throw err;
-		res.send("Type saved")
+		if (err) {
+			console.log('error');
+			res.send({status: 'error'});
+		}
+		else {
+			res.send("Type saved");
+		}
 	});
 });
 
