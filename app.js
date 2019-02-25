@@ -12,7 +12,7 @@ var statusesRouter = require('./routes/statuses');
 
 var mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/jetApp');
+mongoose.connect('mongodb://localhost:27017/jetApp', { useNewUrlParser: true });
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
