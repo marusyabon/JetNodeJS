@@ -1,11 +1,10 @@
 import {JetView} from "webix-jet";
-import { constants } from "zlib";
 import {contacts} from "models/contacts";
 
 export default class ContactsView extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
-		
+
 		let userInfo = obj => `<div class='user_icon'>\
 							<img src="${obj.Photo ? obj.Photo : 'https://cs.unc.edu/~csturton/HWSecurityatUNC/images/person.png'}" />\
 						</div>\
@@ -23,7 +22,7 @@ export default class ContactsView extends JetView {
 								"onTimedKeyPress": () => {
 									let value = this.$$("listFilter").getValue().toLowerCase();
 									let dateStr = webix.Date.dateToStr("%d %M %Y");
-									
+
 									this.$$("list").filter((obj) => {
 										for (let key in obj) {
 											if(obj[key]){
@@ -66,7 +65,7 @@ export default class ContactsView extends JetView {
 					value: _("Add"),
 					click: () => {
 						let id = this.getParam("id", true);
-						this.show(`/top/contacts.contacts?id=${id}&new=true/contacts.form`);					
+						this.show(`/top/contacts.contacts?id=${id}&new=true/contacts.form`);
 					}
 				},
 				{
@@ -84,11 +83,10 @@ export default class ContactsView extends JetView {
 	}
 
 	init() {
-		// webix.ajax().get('http://localhost:3000/users', (text, data) => {
-		// 	data = data.json();
-		// 	this.$$('list').parse(data);
-		// });
-		this.$$("list").sync(contacts);
+		webix.ajax().get('http://localhost:3000/contacts', (text, data) => {
+			data = data.json();
+			this.$$('list').parse(data.data);
+		});
 
 		this.on(this.app, "onContactDelete", () => {
 			let id = contacts.getFirstId();

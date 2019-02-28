@@ -105,26 +105,34 @@ export default class ActivitiesForm extends JetView {
 				this.$$("ContactID").disable();
 			}
 		}
-		
+
 		this.getRoot().show();
 	}
 
 	saveForm() {
 		let formView = this.$$("formView");
 		const values = formView.getValues();
-		
+
 		let h = values._Time.getHours(),
 			m = values._Time.getMinutes();
-			
+
 		values.DueDate = values._Date;
 		values.DueDate.setHours(h, m);
 
 		if (formView.validate()) {
-			values.id ? activities.updateItem(values.id, values) : activities.add(values);
-			
-			// webix.ajax().post('http://localhost:3000/activities', values, function(response) {
-			// 	webix.message(response);
-			// });
+
+			// values.id ? activities.updateItem(values.id, values) : activities.add(values);
+
+			if(values.id) {
+				webix.ajax().put('http://localhost:3000/activities', values, function (response) {
+					webix.message(response);
+				});
+			}
+			else {
+				webix.ajax().post('http://localhost:3000/activities', values, function (response) {
+					webix.message(response);
+				});
+			}
 
 			formView.clearValidation();
 			formView.clear();

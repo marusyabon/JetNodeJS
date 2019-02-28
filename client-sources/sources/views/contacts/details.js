@@ -1,6 +1,4 @@
 import { JetView } from "webix-jet";
-import { contacts } from "models/contacts";
-import { statuses } from "models/statuses";
 import ActivitiesTable from "./activities";
 import FilesTable from "./files";
 
@@ -100,12 +98,20 @@ export default class ContactDetails extends JetView {
 	}
 
 	urlChange() {
-		webix.promise.all([
-			contacts.waitData,
-			statuses.waitData
-		]).then(() => {
+		const id = this.getParam("id", true);
+		const conactsCollection = webix.ajax().get('http://localhost:3000/contacts',  { _id: id });
+		const statusesCollection = webix.ajax().get('http://localhost:3000/statuses');
+
+		webix.promise.all([conactsCollection, statusesCollection]).then(function(){
 			let id = this.getParam("id", true);
-			if (id && contacts.exists(id)) {
+			let contacts = data.json();
+			contacts = contacts.find((item) => {
+				item._id == id;
+			});
+			let statuses = data.json();
+			statuses = data.data;
+
+			if (id) {
 				let contactData = webix.copy(contacts.getItem(id));
 				let flag = statuses.exists(contactData.StatusID);
 				contactData.status = flag ? statuses.getItem(contactData.StatusID).Value : 'Unset';
@@ -114,14 +120,14 @@ export default class ContactDetails extends JetView {
 				contactData.Birthday = format(contactData.Birthday);
 
 				this.$$("contactTitle").setValue(contactData.FirstName + " " + contactData.LastName);
-				this.$$("contactCard").setValues(contactData);
+				this.$$("contactCard").parse(contactData);
 			}
 		});
 	}
 
 	removeContact() {
 		const _ = this.app.getService("locale")._;
-		
+
 		webix.confirm({
 			title: _("Confirm_titile"),
 			text: _("Confirm_text"),
@@ -129,8 +135,11 @@ export default class ContactDetails extends JetView {
 				if (result) {
 					this.app.callEvent("onContactDelete");
 
-					let id = this.getParam("id", true);
-					contacts.remove(id);
+					const id = this.getParam("id", true);
+
+					webix.ajax().del('http://localhost:3000/contacts', {_id: id}, function (response) {
+						webix.message(response);
+					});
 				}
 			}
 		});

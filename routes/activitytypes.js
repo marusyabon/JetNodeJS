@@ -6,30 +6,34 @@ const ObjectID = require('mongodb').ObjectID;
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 	Activitytype.find({}, function (err, data) {
-		if (!err) {
-			res.send(data);
+		const response = {};
+		if (err) {
+			response.status = 'error';
 		}
 		else {
-			console.log('error');
-			res.send({status: 'error'});
+			response.status = 'success';
+			response.data = data;
 		}
+		res.send(response);
 	})
 });
 
 router.post('/', function (req, res, next) {
 	let activitytype = new Activitytype(req.body);
+	activitytype.id = ObjectID(req.body._id);
 	activitytype.save((err) => {
+		const response = {};
 		if (err) {
-			console.log('error');
-			res.send({status: 'error'});
+			response.status = 'error';
 		}
 		else {
-			res.send("Type saved");
+			response.status = 'success';
 		}
+		res.send(response);
 	});
 });
 
-router.put('/:id', function (req, res, next) {
+router.put('/', function (req, res, next) {
 	Activitytype.findOneAndUpdate(
 		{ _id: ObjectID(req.body._id) },
 		{
@@ -39,19 +43,20 @@ router.put('/:id', function (req, res, next) {
 			}
 		},
 		function (err, result) {
+			const response = {};
 			if (err) {
-				console.log('error');
-				res.send({status: 'error'});
+				response.status = 'error';
 			}
 			else {
-				console.log(result);
-				res.send(result);
+				response.status = 'success';
+				response.data = result;
 			}
+			res.send(response);
 		}
 	);
 });
 
-router.delete('/:id', function (req, res, next) {
+router.delete('/', function (req, res, next) {
 	Activitytype.findOneAndDelete(
 		{ _id: ObjectID(req.body._id) },
 		function (err, result) {

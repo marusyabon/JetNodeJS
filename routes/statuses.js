@@ -6,31 +6,34 @@ const ObjectID = require('mongodb').ObjectID;
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 	Status.find({}, function (err, data) {
+		const response = {};
 		if (err) {
-			console.log('error');
-			res.send({status: 'error'});
+			response.status = 'error';
 		}
 		else {
-			res.send(data);
+			response.status = 'success';
+			response.data = data;
 		}
+		res.send(response)
 	})
 });
 
 router.post('/', function (req, res, next) {
 	let status = new Status(req.body);
+	// status.id = req.body._id;
 	status.save((err) => {
+		const response = {};
 		if (err) {
-			console.log('error');
-			res.send({status: 'error'});
+			response.status = 'error';
 		}
 		else {
-			console.log(req.body);
-			res.send("Status type saved");
+			response.status = 'success';
 		}
+		res.send(response)
 	});
 });
 
-router.put('/:id', function (req, res, next) {
+router.put('/', function (req, res, next) {
 	Status.findOneAndUpdate(
 		{ _id: ObjectID(req.body._id) },
 		{
@@ -40,19 +43,20 @@ router.put('/:id', function (req, res, next) {
 			}
 		},
 		function (err, result) {
+			const response = {};
 			if (err) {
-				console.log('error');
-				res.send({status: 'error'});
+				response.status = 'error';
 			}
 			else {
-				console.log(result);
-				res.send(result);
+				response.status = 'success';
+				response.data = result;
 			}
+			res.send(response)
 		}
 	);
 });
 
-router.delete('/:id', function (req, res, next) {
+router.delete('/', function (req, res, next) {
 	Status.findOneAndDelete(
 		{ _id: ObjectID(req.body._id) },
 		function (err, result) {

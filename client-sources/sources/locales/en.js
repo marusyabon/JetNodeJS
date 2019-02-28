@@ -68,5 +68,6 @@ export default {
 
 	// form labels
 	"Add contact": "Add contact",
-	"Edit contact": "Edit contact"
+	"Edit contact": "Edit contact",
+	"Edit activity": "Edit activity"
 };

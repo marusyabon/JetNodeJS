@@ -1,3 +1,4 @@
 export const files = new webix.DataCollection({
-	data: []
+	url: "http://localhost:3000/files",
+	save: "rest->http://localhost:3000/files",
 });

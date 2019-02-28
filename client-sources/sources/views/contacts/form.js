@@ -1,6 +1,6 @@
 import {JetView} from "webix-jet";
-import {contacts} from "models/contacts";
-import {statuses} from "models/statuses";
+// import {contacts} from "models/contacts";
+// import {statuses} from "models/statuses";
 
 export default class ContactsForm extends JetView {
 	config() {
@@ -17,7 +17,7 @@ export default class ContactsForm extends JetView {
 				{
 					view:"label",
 					localId: "formLabel",
-					label: _("Edit contact"), 
+					label: _("Edit contact"),
 					align:"center"
 				},
 				{
@@ -29,7 +29,7 @@ export default class ContactsForm extends JetView {
 								{ view: "text", label: _("First name"), name: "FirstName" },
 								{ view: "text", label: _("Last name"), name: "LastName" },
 								{ view: "datepicker", label: _("Joining date"), name: "StartDate", format: webix.Date.dateToStr("%d %M %Y"), },
-								{ view: "combo", label: _("Status"), name: "StatusID", options: { body: { template: "#Value#", data: statuses } } },
+								{ view: "combo", label: _("Status"), name: "StatusID", id: "StatusID", options: { body: { template: "#Value#", data: [] } } },
 								{ view: "text", label: _("Job"), name: "Job" },
 								{ view: "text", label: _("Company"), name: "Company" },
 								{ view: "text", label: _("Website"), name: "Website" },
@@ -73,7 +73,7 @@ export default class ContactsForm extends JetView {
 															reader.onload = (e) => {
 																this.$$("cPhoto").setValues({ Photo: e.target.result });
 															};
-														
+
 															if (uploadedFile) {
 																reader.readAsDataURL(uploadedFile.file);
 															}
@@ -99,7 +99,7 @@ export default class ContactsForm extends JetView {
 								}
 							]
 						},
-						
+
 					]
 				},
 				{},
@@ -133,17 +133,29 @@ export default class ContactsForm extends JetView {
 				"FirstName": webix.rules.isNotEmpty,
 				"LastName": webix.rules.isNotEmpty,
 				"StatusID": webix.rules.isNotEmpty
-			}		
+			}
 		};
 	}
 
 	init() {
+		webix.ajax().get('http://localhost:3000/statuses', (text, data) => {
+			data = data.json();
+
+			data = data.data.map((item) => {
+				item.id = item._id;
+				return item
+			});
+			
+			const suggestId = $$('StatusID').config.suggest;
+      		$$(suggestId).getList().parse(data);
+		});
+
 		const _ = this.app.getService("locale")._;
 		contacts.waitData.then(() => {
 
 			const id = this.getParam("id", true);
 			const isNew = this.getParam("new", true);
-			
+
 			if (isNew) {
 				this.$$("formLabel").setValue(_("Add contact"));
 				this.$$("saveBtn").setValue(_("Add"));
@@ -169,15 +181,21 @@ export default class ContactsForm extends JetView {
 
 		if (formView.validate()) {
 
-			values.id ? contacts.updateItem(values.id, values) : contacts.add(values);
-			
-			// webix.ajax().post('http://localhost:3000/users', values, function(response) {
-			// 	webix.message(response);
-			// });
-			
+			// values.id ? contacts.updateItem(values.id, values) : contacts.add(values);
+
+			if(values.id) {
+				webix.ajax().put('http://localhost:3000/contacts', values, function (response) {
+					webix.message(response);
+				});
+			}
+			else {
+				webix.ajax().post('http://localhost:3000/contacts', values, function (response) {
+					webix.message(response);
+				});
+			}
 
 			this.show(`/top/contacts.contacts?id=${values.id}/contacts.details`);
-			
+
 			formView.clearValidation();
 			formView.clear();
 		}

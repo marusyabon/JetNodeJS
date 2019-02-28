@@ -6,38 +6,50 @@ const ObjectID = require('mongodb').ObjectID;
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
-	Contact.find({}, function (err, data) {
+	Contact.find({}).
+	populate({path: 'StatusID', select: 'Value'}).
+	exec(function (err, data) {
+
+		data = data.map((item) => {
+			item.id = ObjectID(item._id);
+			return item
+		});
+
+		const response = {};
 		if (err) {
-			console.log('error');
-			res.send({status: 'error'});
+			console.log(err);
+			response.status = 'error';
 		}
 		else {
-			res.send(data);
+			response.data = data;
 		}
+		res.send(response);
 	})
 });
 
 router.post('/', function (req, res, next) {
 	let contact = new Contact(req.body);
 	contact.save((err) => {
+		const response = {};
 		if (err) {
-			console.log('error');
-			res.send({status: 'error'});
+			console.log(err);
+			response.status = 'error';
 		}
 		else {
-			res.send("Contact saved");
+			response.status = 'server';
 		}
+		res.send(response);
 	});
 });
 
-router.put('/:id', function (req, res, next) {
+router.put('/', function (req, res, next) {
 	Contact.findOneAndUpdate(
 		{ _id: ObjectID(req.body._id) },
 		{
 			$set: {
-				id: req.body._id,
 				FirstName: req.body.FirstName,
 				LastName: req.body.LastName,
+				StatusID: req.body.StatusID,
 				Email: req.body.Email,
 				Photo: req.body.Photo,
 				Skype: req.body.Skype,
@@ -48,19 +60,21 @@ router.put('/:id', function (req, res, next) {
 			}
 		},
 		function (err, result) {
+			const response = {};
 			if (err) {
-				console.log('error');
-				res.send({status: 'error'});
+				console.log(err);
+				response.status = 'error';
 			}
 			else {
-				console.log('result');
-				res.send(result);
+				response.status = 'server';
+				response.data = result;
 			}
+			res.send(response);
 		}
 	);
 });
 
-router.delete('/:id', function (req, res, next) {
+router.delete('/', function (req, res, next) {
 	Contact.findOneAndDelete(
 		{ _id: ObjectID(req.body._id) },
 		function (err, result) {

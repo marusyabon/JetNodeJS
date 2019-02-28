@@ -5,6 +5,7 @@ const ContactSchema = new Schema({
 	id: String,
     FirstName: String,
 	LastName: String,
+	StatusID: {type: Schema.Types.ObjectId, ref: "Statuse"},
 	Email: String,
 	Photo: String,
 	Skype: String,

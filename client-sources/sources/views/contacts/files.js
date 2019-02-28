@@ -1,4 +1,4 @@
-import {JetView} from "webix-jet";
+import { JetView } from "webix-jet";
 import { files } from "models/files";
 
 export default class FilesTable extends JetView {
@@ -21,7 +21,7 @@ export default class FilesTable extends JetView {
 					id: "FileDate",
 					sort: "date",
 					header: _("Change Date"),
-					format:function(val){ 
+					format:function(val){
 						return webix.Date.dateToStr("%d %M %y")(val);
 					}
 				},
@@ -52,15 +52,16 @@ export default class FilesTable extends JetView {
 			}
 		};
 
-		let _button = { 
-			view: "uploader", 
+		let _button = {
+			view: "uploader",
 			label: _("Upload file"),
 			localId: "fileUploader",
 			type: "icon",
 			icon: "fas fa-cloud-upload-alt",
 			css: "uploader",
 			width: 160,
-			autosend: false,
+			upload: "http://localhost:3000/files",
+			// autosend: false,
 			on: {
 				"onBeforeFileAdd": (upload) => {
 					let file = upload.file;
@@ -72,7 +73,7 @@ export default class FilesTable extends JetView {
 						FileSize: file.size
 						// FileSize: `${file.size} kb`
 					};
-					files.add(fileObj);
+					files.add(upload.file);
 				},
 				"onFileUploadError": () => {
 					webix.message("Uploading failed");

@@ -99,7 +99,10 @@ export default class ActivitiesView extends JetView {
 						text: _("Confirm_text"),
 						callback: function (result) {
 							if (result) {
-								activities.remove(id);
+								// activities.remove(id);
+								webix.ajax().del('http://localhost:3000/activities', values, function (response) {
+									webix.message(response);
+								});
 							}
 							return false;
 						}
@@ -162,4 +165,3 @@ export default class ActivitiesView extends JetView {
 		);
 	}
 }
- 

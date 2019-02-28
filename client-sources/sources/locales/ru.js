@@ -28,7 +28,7 @@ export default {
 	"This month": "В этом месяце",
 
 	// table labels
-	
+
 	"Activity type": "Тип занятости",
 	"Activity types": "Типы занятости",
 	"Statuses": "Статусы",
@@ -66,8 +66,9 @@ export default {
 	"Date": "Дата",
 	"Time": "Время",
 
-	
+
 	// form labels
 	"Add contact": "Добавить контакт",
-	"Edit contact": "Редактировать контакт"
+	"Edit contact": "Редактировать контакт",
+	"Edit activity": "Редактировать активность"
 };
