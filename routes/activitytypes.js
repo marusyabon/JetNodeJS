@@ -11,7 +11,11 @@ router.get('/', function (req, res, next) {
 			response.status = 'error';
 		}
 		else {
-			response.status = 'success';
+			response.status = 'server';
+			data = data.map((item) => {
+				item.id = ObjectID(item._id);
+				return item
+			});
 			response.data = data;
 		}
 		res.send(response);
@@ -27,13 +31,13 @@ router.post('/', function (req, res, next) {
 			response.status = 'error';
 		}
 		else {
-			response.status = 'success';
+			response.status = 'server';
 		}
 		res.send(response);
 	});
 });
 
-router.put('/', function (req, res, next) {
+router.put('/:id', function (req, res, next) {
 	Activitytype.findOneAndUpdate(
 		{ _id: ObjectID(req.body._id) },
 		{
@@ -48,7 +52,7 @@ router.put('/', function (req, res, next) {
 				response.status = 'error';
 			}
 			else {
-				response.status = 'success';
+				response.status = 'server';
 				response.data = result;
 			}
 			res.send(response);
@@ -56,7 +60,7 @@ router.put('/', function (req, res, next) {
 	);
 });
 
-router.delete('/', function (req, res, next) {
+router.delete('/:id', function (req, res, next) {
 	Activitytype.findOneAndDelete(
 		{ _id: ObjectID(req.body._id) },
 		function (err, result) {

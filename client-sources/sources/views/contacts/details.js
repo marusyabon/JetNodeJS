@@ -1,4 +1,5 @@
 import { JetView } from "webix-jet";
+import { contacts } from "models/contacts";
 import ActivitiesTable from "./activities";
 import FilesTable from "./files";
 
@@ -31,7 +32,7 @@ export default class ContactDetails extends JetView {
 					icon: "fas fa-edit",
 					width: 100,
 					click: () => {
-						let id = this.getParam("id", true);
+						const id = this.getParam("id", true);
 						this.show(`/top/contacts.contacts?id=${id}/contacts.form`);
 					}
 				}
@@ -47,7 +48,7 @@ export default class ContactDetails extends JetView {
 						<div class="photo_wrap contact_avatar">
 							<img src="${contact.Photo ? contact.Photo : 'https://cs.unc.edu/~csturton/HWSecurityatUNC/images/person.png'}" />
 						</div>
-						<p class="contact_status">${contact.status}</p>
+						<p class="contact_status">${contact.StatusID}</p>
 					</div>
 						<div class="col icon_p">
 						<p><i class="fas fa-envelope"></i>${contact.Email}</p>
@@ -98,29 +99,18 @@ export default class ContactDetails extends JetView {
 	}
 
 	urlChange() {
-		const id = this.getParam("id", true);
-		const conactsCollection = webix.ajax().get('http://localhost:3000/contacts',  { _id: id });
-		const statusesCollection = webix.ajax().get('http://localhost:3000/statuses');
-
-		webix.promise.all([conactsCollection, statusesCollection]).then(function(){
-			let id = this.getParam("id", true);
-			let contacts = data.json();
-			contacts = contacts.find((item) => {
-				item._id == id;
-			});
-			let statuses = data.json();
-			statuses = data.data;
-
-			if (id) {
+		contacts.waitData.then(() => {
+			const id = this.getParam("id", true);
+			if (id && contacts.exists(id)) {
 				let contactData = webix.copy(contacts.getItem(id));
-				let flag = statuses.exists(contactData.StatusID);
-				contactData.status = flag ? statuses.getItem(contactData.StatusID).Value : 'Unset';
+				const StatusIdVal = contactData.StatusID;
+				contactData.StatusID = StatusIdVal.Value;
 
 				let format = webix.Date.dateToStr("%d-%m-%Y");
 				contactData.Birthday = format(contactData.Birthday);
 
 				this.$$("contactTitle").setValue(contactData.FirstName + " " + contactData.LastName);
-				this.$$("contactCard").parse(contactData);
+				this.$$("contactCard").setValues(contactData);
 			}
 		});
 	}
@@ -135,11 +125,8 @@ export default class ContactDetails extends JetView {
 				if (result) {
 					this.app.callEvent("onContactDelete");
 
-					const id = this.getParam("id", true);
-
-					webix.ajax().del('http://localhost:3000/contacts', {_id: id}, function (response) {
-						webix.message(response);
-					});
+					let id = this.getParam("id", true);
+					contacts.remove(id);
 				}
 			}
 		});

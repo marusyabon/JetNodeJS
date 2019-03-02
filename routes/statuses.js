@@ -6,6 +6,11 @@ const ObjectID = require('mongodb').ObjectID;
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 	Status.find({}, function (err, data) {
+		data = data.map((item) => {
+			item.id = ObjectID(item._id);
+			return item
+		});
+
 		const response = {};
 		if (err) {
 			response.status = 'error';
@@ -20,7 +25,6 @@ router.get('/', function (req, res, next) {
 
 router.post('/', function (req, res, next) {
 	let status = new Status(req.body);
-	// status.id = req.body._id;
 	status.save((err) => {
 		const response = {};
 		if (err) {
@@ -33,7 +37,7 @@ router.post('/', function (req, res, next) {
 	});
 });
 
-router.put('/', function (req, res, next) {
+router.put('/:id', function (req, res, next) {
 	Status.findOneAndUpdate(
 		{ _id: ObjectID(req.body._id) },
 		{
@@ -56,7 +60,7 @@ router.put('/', function (req, res, next) {
 	);
 });
 
-router.delete('/', function (req, res, next) {
+router.delete('/:id', function (req, res, next) {
 	Status.findOneAndDelete(
 		{ _id: ObjectID(req.body._id) },
 		function (err, result) {

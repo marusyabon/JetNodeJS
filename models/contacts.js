@@ -12,6 +12,7 @@ const ContactSchema = new Schema({
 	Job: String,
 	Company: String,
 	Birthday: String,
+	StartDate: String,
 	Address: String
 });
 

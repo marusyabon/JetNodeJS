@@ -101,9 +101,11 @@ export default class ActivitiesTable extends JetView {
 		this.actForm = this.ui(ActivitiesForm);
 
 		this.on(this.app, "onContactDelete", () => {
-			let id = this.getParam("id", true);
+			const id = this.getParam("id", true);
 
-			let actToRemove = activities.find((item) => item.ContactID == id);
+			let actToRemove = activities.find((item) => {
+				return item.ContactID == id
+			});
 			actToRemove.forEach((item) => {
 				activities.remove(item.id);
 			});
@@ -112,15 +114,16 @@ export default class ActivitiesTable extends JetView {
 
 	urlChange() {
 		activities.waitData.then(() => {
-			let id = this.getParam("id", true);
-			let dTable = this.$$("actTable");
+			const id = this.getParam("id", true);
+			const dTable = this.$$("actTable");
 
 			if (id) {
-				dTable.sync(activities, () => {
+				dTable.sync(activities/*, () => {
 					dTable.filter((item) => {
-						return item.ContactID == id;
+						const contactIdVal = item.ContactID;
+						return contactIdVal._id == id;
 					});
-				});
+				}*/);
 			}
 		});
 	}

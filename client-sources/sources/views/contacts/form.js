@@ -1,6 +1,6 @@
 import {JetView} from "webix-jet";
-// import {contacts} from "models/contacts";
-// import {statuses} from "models/statuses";
+import {contacts} from "models/contacts";
+import {statuses} from "models/statuses";
 
 export default class ContactsForm extends JetView {
 	config() {
@@ -28,8 +28,8 @@ export default class ContactsForm extends JetView {
 							rows: [
 								{ view: "text", label: _("First name"), name: "FirstName" },
 								{ view: "text", label: _("Last name"), name: "LastName" },
-								{ view: "datepicker", label: _("Joining date"), name: "StartDate", format: webix.Date.dateToStr("%d %M %Y"), },
-								{ view: "combo", label: _("Status"), name: "StatusID", id: "StatusID", options: { body: { template: "#Value#", data: [] } } },
+								{ view: "datepicker", label: _("Joining date"), name: "StartDate", /*format: webix.Date.dateToStr("%d %M %Y"),*/ },
+								{ view: "combo", label: _("Status"), name: "StatusID", options: { body: { template: "#Value#", data: statuses } } },
 								{ view: "text", label: _("Job"), name: "Job" },
 								{ view: "text", label: _("Company"), name: "Company" },
 								{ view: "text", label: _("Website"), name: "Website" },
@@ -42,7 +42,7 @@ export default class ContactsForm extends JetView {
 								{ view: "text", label: _("Email"), name: "Email" },
 								{ view: "text", label: _("Skype"), name: "Skype" },
 								{ view: "text", label: _("Phone"), name: "Phone" },
-								{ view: "datepicker", label: _("Birthday"), name: "Birthday", format: webix.Date.dateToStr("%d %M %Y"), },
+								{ view: "datepicker", label: _("Birthday"), name: "Birthday", /*format: webix.Date.dateToStr("%d %M %Y"),*/ },
 								{ view: "text", name: "Photo", localId: "Photo", hidden: true },
 								{
 									margin: 25,
@@ -138,20 +138,11 @@ export default class ContactsForm extends JetView {
 	}
 
 	init() {
-		webix.ajax().get('http://localhost:3000/statuses', (text, data) => {
-			data = data.json();
-
-			data = data.data.map((item) => {
-				item.id = item._id;
-				return item
-			});
-			
-			const suggestId = $$('StatusID').config.suggest;
-      		$$(suggestId).getList().parse(data);
-		});
-
 		const _ = this.app.getService("locale")._;
-		contacts.waitData.then(() => {
+		webix.promise.all([
+			contacts.waitData,
+			statuses.waitData
+		]).then(() => {
 
 			const id = this.getParam("id", true);
 			const isNew = this.getParam("new", true);
@@ -162,9 +153,11 @@ export default class ContactsForm extends JetView {
 			}
 
 			if (!isNew && id && contacts.exists(id)) {
-				let contactData = webix.copy(contacts.getItem(id));
-				let flag = statuses.exists(contactData.StatusID);
-				contactData.status = flag ? statuses.getItem(contactData.StatusID).Value : {};
+				const contactData = webix.copy(contacts.getItem(id));
+				const statusIdVal = contactData.StatusID;
+				const flag = statuses.exists(statusIdVal._id);
+
+				contactData.StatusID = flag ? statuses.getItem(statusIdVal._id).id : {};
 
 				this.$$("cPhoto").setValues(contactData);
 				this.$$("contactForm").setValues(contactData);
@@ -173,28 +166,19 @@ export default class ContactsForm extends JetView {
 	}
 
 	saveForm () {
-		let formView = this.$$("contactForm");
+		const formView = this.$$("contactForm");
 
-		let photoUrl = this.$$("cPhoto").getValues();
+		const photoUrl = this.$$("cPhoto").getValues();
 		this.$$("Photo").setValue(photoUrl.Photo);
 		const values = formView.getValues();
 
 		if (formView.validate()) {
+			const id = this.getParam("id", true);
+			const isNew = this.getParam("new", true);
 
-			// values.id ? contacts.updateItem(values.id, values) : contacts.add(values);
+			isNew ? contacts.add(values) : contacts.updateItem(values.id, values);
 
-			if(values.id) {
-				webix.ajax().put('http://localhost:3000/contacts', values, function (response) {
-					webix.message(response);
-				});
-			}
-			else {
-				webix.ajax().post('http://localhost:3000/contacts', values, function (response) {
-					webix.message(response);
-				});
-			}
-
-			this.show(`/top/contacts.contacts?id=${values.id}/contacts.details`);
+			this.show(`/top/contacts.contacts?id=${values._id}/contacts.details`);
 
 			formView.clearValidation();
 			formView.clear();

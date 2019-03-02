@@ -4,7 +4,7 @@ import {contacts} from "models/contacts";
 export default class ContactsView extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
-
+		
 		let userInfo = obj => `<div class='user_icon'>\
 							<img src="${obj.Photo ? obj.Photo : 'https://cs.unc.edu/~csturton/HWSecurityatUNC/images/person.png'}" />\
 						</div>\
@@ -19,10 +19,10 @@ export default class ContactsView extends JetView {
 							localId: "listFilter",
 							placeholder: "type to find matcing contacts",
 							on: {
-								"onTimedKeyPress": () => {
+								"onTimedKeyPress": () => { 
 									let value = this.$$("listFilter").getValue().toLowerCase();
 									let dateStr = webix.Date.dateToStr("%d %M %Y");
-
+									
 									this.$$("list").filter((obj) => {
 										for (let key in obj) {
 											if(obj[key]){
@@ -83,10 +83,7 @@ export default class ContactsView extends JetView {
 	}
 
 	init() {
-		webix.ajax().get('http://localhost:3000/contacts', (text, data) => {
-			data = data.json();
-			this.$$('list').parse(data.data);
-		});
+		this.$$("list").sync(contacts);
 
 		this.on(this.app, "onContactDelete", () => {
 			let id = contacts.getFirstId();

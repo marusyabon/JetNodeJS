@@ -7,20 +7,19 @@ const ObjectID = require('mongodb').ObjectID;
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 	Contact.find({}).
-	populate({path: 'StatusID', select: 'Value'}).
+	populate('StatusID', 'Value').
 	exec(function (err, data) {
-
-		data = data.map((item) => {
-			item.id = ObjectID(item._id);
-			return item
-		});
-
 		const response = {};
 		if (err) {
 			console.log(err);
 			response.status = 'error';
 		}
 		else {
+			console.log(data);
+			data = data.map((item) => {
+				item.id = ObjectID(item._id);
+				return item
+			});
 			response.data = data;
 		}
 		res.send(response);
@@ -42,7 +41,7 @@ router.post('/', function (req, res, next) {
 	});
 });
 
-router.put('/', function (req, res, next) {
+router.put('/:id', function (req, res, next) {
 	Contact.findOneAndUpdate(
 		{ _id: ObjectID(req.body._id) },
 		{
@@ -74,7 +73,7 @@ router.put('/', function (req, res, next) {
 	);
 });
 
-router.delete('/', function (req, res, next) {
+router.delete('/:id', function (req, res, next) {
 	Contact.findOneAndDelete(
 		{ _id: ObjectID(req.body._id) },
 		function (err, result) {

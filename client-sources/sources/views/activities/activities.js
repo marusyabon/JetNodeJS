@@ -99,10 +99,7 @@ export default class ActivitiesView extends JetView {
 						text: _("Confirm_text"),
 						callback: function (result) {
 							if (result) {
-								// activities.remove(id);
-								webix.ajax().del('http://localhost:3000/activities', values, function (response) {
-									webix.message(response);
-								});
+								activities.remove(id);
 							}
 							return false;
 						}
@@ -113,7 +110,7 @@ export default class ActivitiesView extends JetView {
 				onAfterFilter: () => {
 					this.$$("actTable").filter((obj) => {
 						let filter = this.$$("actFilter").getValue();
-						return this.actFiltering(obj, filter);
+						return this.actFiltering(obj, filter);								
 					}, "", true);
 				}
 			},
@@ -163,5 +160,5 @@ export default class ActivitiesView extends JetView {
 				}
 			}
 		);
-	}
+	}	
 }
