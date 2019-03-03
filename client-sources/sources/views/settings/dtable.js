@@ -11,13 +11,13 @@ export default class DataTable extends JetView{
 	config() {
 		const _ = this.app.getService("locale")._;
 
-		let label = {
+		const label = {
 			view:"label",
 			label: this._label,
 			align: "center"
 		};
 
-		let _table = {
+		const _table = {
 			view: "datatable",
 			select: true,
 			editable: true,
@@ -45,7 +45,7 @@ export default class DataTable extends JetView{
 			]
 		};
 
-		let addBtn = {
+		const addBtn = {
 			view: "button",
 			label: _("Add"),
 			type: "form",
@@ -57,7 +57,7 @@ export default class DataTable extends JetView{
 			}
 		};
 
-		let removeBtn = {
+		const removeBtn = {
 			view: "button",
 			label: _("Delete"),
 			click: () => {
@@ -66,7 +66,7 @@ export default class DataTable extends JetView{
 					text: _("Confirm_text"),
 					callback: (result) => {
 						if (result) {
-							let item = this.getRoot().queryView({view:"datatable"}).getSelectedId();
+							const item = this.getRoot().queryView({view:"datatable"}).getSelectedId();
 							this._tdata.remove(item);
 						}
 						return false;

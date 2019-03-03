@@ -20,8 +20,8 @@ export default class ContactsView extends JetView {
 							placeholder: "type to find matcing contacts",
 							on: {
 								"onTimedKeyPress": () => {
-									let value = this.$$("listFilter").getValue().toLowerCase();
-									let dateStr = webix.Date.dateToStr("%d %M %Y");
+									const value = this.$$("listFilter").getValue().toLowerCase();
+									const dateStr = webix.Date.dateToStr("%d %M %Y");
 
 									this.$$("list").filter((obj) => {
 										for (let key in obj) {
@@ -64,7 +64,7 @@ export default class ContactsView extends JetView {
 					type: "form",
 					value: _("Add"),
 					click: () => {
-						let id = this.getParam("id", true);
+						const id = this.getParam("id", true);
 						this.show(`/top/contacts.contacts?id=${id}&new=true/contacts.form`);
 					}
 				},

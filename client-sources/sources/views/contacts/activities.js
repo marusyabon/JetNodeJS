@@ -68,7 +68,7 @@ export default class ActivitiesTable extends JetView {
 			},
 			on: {
 				onAfterFilter: () => {
-					let id = this.getParam("id", true),
+					const id = this.getParam("id", true),
 						actTable = this.$$("actTable");
 					actTable.blockEvent();
 					actTable.filter((obj) => {
@@ -116,6 +116,8 @@ export default class ActivitiesTable extends JetView {
 		activities.waitData.then(() => {
 			const id = this.getParam("id", true);
 			const dTable = this.$$("actTable");
+
+			// filter by contact id
 
 			if (id) {
 				dTable.sync(activities, () => {

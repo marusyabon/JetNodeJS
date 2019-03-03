@@ -7,13 +7,13 @@ export default class ContactDetails extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
 
-		let contactTitle = {
+		const contactTitle = {
 			view: "label",
 			css: "contact_title",
 			localId: "contactTitle"
 		};
 
-		let buttons = {
+		const buttons = {
 			cols: [
 				{
 					view: "button",
@@ -39,7 +39,7 @@ export default class ContactDetails extends JetView {
 			]
 		};
 
-		let contactCard = {
+		const contactCard = {
 			localId: "contactCard",
 			minHeight: 270,
 			template: (contact) => {
@@ -125,7 +125,7 @@ export default class ContactDetails extends JetView {
 				if (result) {
 					this.app.callEvent("onContactDelete");
 
-					let id = this.getParam("id", true);
+					const id = this.getParam("id", true);
 					contacts.remove(id);
 				}
 			}

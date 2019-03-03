@@ -75,7 +75,7 @@ export default class ActivitiesForm extends JetView {
 	showWindow(id) {
 		const _ = this.app.getService("locale")._;
 
-		let formView = this.$$("formView");
+		const formView = this.$$("formView");
 		formView.clearValidation();
 		formView.clear();
 
@@ -112,7 +112,7 @@ export default class ActivitiesForm extends JetView {
 	}
 
 	saveForm() {
-		let formView = this.$$("formView");
+		const formView = this.$$("formView");
 		const values = formView.getValues();
 
 		let h = values._Time.getHours(),

@@ -6,7 +6,7 @@ export const activities = new webix.DataCollection({
 	},
 	scheme: {
 		$change(obj) {
-			let dateFormat = webix.Date.strToDate("%d-%m-%Y %H:%i");
+			const dateFormat = webix.Date.strToDate("%d-%m-%Y %H:%i");
 
 			obj.DueDate = dateFormat(obj.DueDate);
 		}

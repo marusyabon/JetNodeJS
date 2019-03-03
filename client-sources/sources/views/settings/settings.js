@@ -8,7 +8,7 @@ export default class SettingsView extends JetView {
 		const lang = this.app.getService("locale").getLang();
 		const _ = this.app.getService("locale")._;
 
-		let switcher = {
+		const switcher = {
 			rows: [
 				{
 					view: "segmented", multiview: true, value: lang, name: "lang",

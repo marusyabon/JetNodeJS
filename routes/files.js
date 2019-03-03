@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const FileModel = require('../models/files');
 const ObjectID = require('mongodb').ObjectID;
+const fs = require('fs');
+const path = require(`path`);
 
 // default options
 router.get('/', function (req, res, next) {
@@ -14,6 +16,10 @@ router.get('/', function (req, res, next) {
 			}
 			else {
 				console.log(data);
+				data = data.map((item) => {
+					item.id = ObjectID(item._id);
+					return item
+				});
 				response.status = 'server';
 				response.data = data;
 			}
@@ -42,12 +48,12 @@ router.post('/upload', function (req, res) {
 		return res.status(400).send('No files were uploaded.');
 	}
 
-	let uploadedFile = req.files.upload;
-	let fileName = uploadedFile.name;
+	const uploadedFile = req.files.upload;
+	const fileName = uploadedFile.name;
 
-	const path = __dirname + '\\data\\files\\' + fileName;
+	const _path = path.resolve('/JetNodeJS/data/files');
 
-	uploadedFile.mv(path, function (err) {
+	uploadedFile.mv(`${_path}/${fileName}`, function (err) {
 		const response = {};
 
 		if (err) {
@@ -59,6 +65,38 @@ router.post('/upload', function (req, res) {
 		}
 		res.send(response);
 	});
+});
+
+router.delete('/:id', function (req, res, next) {
+
+	const fileName = req.body.FileName;
+	const _path = path.resolve('/JetNodeJS/data/files');
+
+	fs.unlink(`${_path}/${fileName}`, (err) => {
+		const response = {};
+
+		if (err) {
+			console.log(err);
+			response.status = 'error';
+		}
+		else {
+			FileModel.findOneAndDelete(
+				{ _id: ObjectID(req.body._id) },
+				function (err, result) {
+					if (err) {
+						console.log(err);
+						response.status = 'error';
+					}
+					else {
+						response.status = 'server';
+						response.data = result;
+					}
+				}
+			);
+		}
+		res.send(response);
+	});
+
 });
 
 module.exports = router;

@@ -8,7 +8,7 @@ export default class ActivitiesView extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
 
-		let tabBar = {
+		const tabBar = {
 			cols: [
 				{
 					view: "tabbar",
@@ -41,7 +41,7 @@ export default class ActivitiesView extends JetView {
 			]
 		};
 
-		let actTable = {
+		const actTable = {
 			view: "datatable",
 			localId: "actTable",
 			select: true,
@@ -114,7 +114,7 @@ export default class ActivitiesView extends JetView {
 			on: {
 				onAfterFilter: () => {
 					this.$$("actTable").filter((obj) => {
-						let filter = this.$$("actFilter").getValue();
+						const filter = this.$$("actFilter").getValue();
 						return this.actFiltering(obj, filter);
 					}, "", true);
 				}

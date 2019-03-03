@@ -101,12 +101,15 @@ export default class FilesTable extends JetView {
 			const id = this.getParam("id", true);
 			const dTable = this.$$("filesTable");
 
+			// filter by contact id
+
 			if (id) {
-				dTable.sync(files,/* () => {
+				dTable.sync(files, () => {
 					dTable.filter((item) => {
-						return item.ContactID == id;
+						const contactIdVal = item.ContactID;
+						return contactIdVal._id == id;
 					});
-				}*/);
+				});
 			}
 		});
 	}
