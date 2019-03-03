@@ -5,7 +5,7 @@ export default class FilesTable extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
 
-		let _table = {
+		const _table = {
 			view: "datatable",
 			localId: "filesTable",
 			select: true,
@@ -52,7 +52,7 @@ export default class FilesTable extends JetView {
 			}
 		};
 
-		let _button = {
+		const _button = {
 			view: "uploader",
 			label: _("Upload file"),
 			localId: "fileUploader",
@@ -60,20 +60,17 @@ export default class FilesTable extends JetView {
 			icon: "fas fa-cloud-upload-alt",
 			css: "uploader",
 			width: 160,
-			upload: "http://localhost:3000/files",
+			upload: "http://localhost:3000/files/upload",
 			// autosend: false,
 			on: {
-				"onBeforeFileAdd": (upload) => {
-					let file = upload.file;
-					let fileObj = {
-						id: file.id,
-						ContactID: this.getParam("id", true),
-						FileName: file.name,
-						FileDate: file.lastModifiedDate,
-						FileSize: file.size
-						// FileSize: `${file.size} kb`
-					};
-					files.add(upload.file);
+				"onFileUpload": (file, response) => {
+					if (response.status == "server") {
+						file.FileName = file.name;
+						file.FileDate = file.file["lastModifiedDate"];
+						file.FileSize = file.size;
+						file.ContactID = this.getParam("id", true);
+						files.add(file);
+					}
 				},
 				"onFileUploadError": () => {
 					webix.message("Uploading failed");
@@ -88,10 +85,9 @@ export default class FilesTable extends JetView {
 			]
 		};
 	}
-
 	init() {
 		this.on(this.app, "onContactDelete", () => {
-			let id = this.getParam("id", true);
+			const id = this.getParam("id", true);
 
 			let filesToRemove = files.find((item) => item.ContactID == id);
 			filesToRemove.forEach((item) => {
@@ -102,15 +98,15 @@ export default class FilesTable extends JetView {
 
 	urlChange() {
 		files.waitData.then(() => {
-			let id = this.getParam("id", true);
-			let dTable = this.$$("filesTable");
+			const id = this.getParam("id", true);
+			const dTable = this.$$("filesTable");
 
 			if (id) {
-				dTable.sync(files, () => {
+				dTable.sync(files,/* () => {
 					dTable.filter((item) => {
 						return item.ContactID == id;
 					});
-				});
+				}*/);
 			}
 		});
 	}

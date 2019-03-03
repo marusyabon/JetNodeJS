@@ -79,7 +79,7 @@ export default class ActivitiesForm extends JetView {
 		formView.clearValidation();
 		formView.clear();
 
-		if (id && activities.exists(id)) {
+		if (id) {
 			this.$$("saveBtn").setValue(_("Save"));
 			this.$$("formPopup").getHead().setHTML(_("Edit activity"));
 
@@ -89,6 +89,8 @@ export default class ActivitiesForm extends JetView {
 
 			values._Date = dateTime;
 			values._Time = dateTime;
+			values.TypeID = values.TypeID["_id"];
+			values.ContactID = values.ContactID["_id"];
 
 			formView.setValues(values);
 		}
@@ -105,24 +107,24 @@ export default class ActivitiesForm extends JetView {
 				this.$$("ContactID").disable();
 			}
 		}
-		
+
 		this.getRoot().show();
 	}
 
 	saveForm() {
 		let formView = this.$$("formView");
 		const values = formView.getValues();
-		
+
 		let h = values._Time.getHours(),
 			m = values._Time.getMinutes();
-			
+
 		values.DueDate = values._Date;
 		values.DueDate.setHours(h, m);
 
 
 		if (formView.validate()) {
 			values.id ? activities.updateItem(values.id, values) : activities.add(values);
-			
+
 			formView.clearValidation();
 			formView.clear();
 			this.$$("formPopup").hide();

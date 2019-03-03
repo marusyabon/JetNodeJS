@@ -7,7 +7,7 @@ export default class ActivitiesTable extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
 
-		let _table = {
+		const _table = {
 			view: "datatable",
 			localId: "actTable",
 			select: true,
@@ -79,7 +79,7 @@ export default class ActivitiesTable extends JetView {
 			},
 		};
 
-		let _button = {
+		const _button = {
 			view: "button",
 			label: _("Add activity"),
 			type: "icon",
@@ -118,12 +118,12 @@ export default class ActivitiesTable extends JetView {
 			const dTable = this.$$("actTable");
 
 			if (id) {
-				dTable.sync(activities/*, () => {
+				dTable.sync(activities, () => {
 					dTable.filter((item) => {
 						const contactIdVal = item.ContactID;
 						return contactIdVal._id == id;
 					});
-				}*/);
+				});
 			}
 		});
 	}

@@ -1,28 +1,64 @@
 const express = require('express');
 const router = express.Router();
+const FileModel = require('../models/files');
+const ObjectID = require('mongodb').ObjectID;
 
 // default options
 router.get('/', function (req, res, next) {
-	res.send([]);
+	FileModel.find({}).
+		populate('ContactID').
+		exec(function (err, data) {
+			const response = {};
+			if (err) {
+				response.status = 'error';
+			}
+			else {
+				console.log(data);
+				response.status = 'server';
+				response.data = data;
+			}
+			res.send(response);
+		})
 });
 
-router.post('/', function(req, res) {
-  if (Object.keys(req.files).length == 0) {
-    return res.status(400).send('No files were uploaded.');
-  }
+router.post('/', function (req, res) {
+	let file = new FileModel(req.body);
+	console.log(file)
+	file.save((err) => {
+		const response = {};
+		if (err) {
+			console.log(err);
+			response.status = 'error';
+		}
+		else {
+			response.status = 'server';
+		}
+	});
+	res.send(response);
+});
 
-  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
-  let sampleFile = req.files.upload;
-  let fileName = req.files.upload.name;
+router.post('/upload', function (req, res) {
+	if (Object.keys(req.files).length == 0) {
+		return res.status(400).send('No files were uploaded.');
+	}
 
-  const path = __dirname + '\\data\\files\\' + fileName;
-  // Use the mv() method to place the file somewhere on your server
-  sampleFile.mv(path, function(err) {
-    if (err)
-      return res.status(500).send(err);
+	let uploadedFile = req.files.upload;
+	let fileName = uploadedFile.name;
 
-    res.send('File uploaded!');
-  });
+	const path = __dirname + '\\data\\files\\' + fileName;
+
+	uploadedFile.mv(path, function (err) {
+		const response = {};
+
+		if (err) {
+			console.log(err);
+			response.status = 'error';
+		}
+		else {
+			response.status = 'server';
+		}
+		res.send(response);
+	});
 });
 
 module.exports = router;

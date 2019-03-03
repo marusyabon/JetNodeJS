@@ -6,7 +6,8 @@ const ObjectID = require('mongodb').ObjectID;
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 	Activity.find({}).
-	populate('ContactID', 'TypeID').
+	populate({path: 'ContactID', select: ['_id'] }).
+	populate({path: 'TypeID', select: ['Value']}).
 	exec(function (err, data) {
 		const response = {};
 		if (err) {
@@ -54,7 +55,7 @@ router.put('/:id', function (req, res, next) {
 		function (err, result) {
 			const response = {};
 			if (err) {
-			console.log('error');
+				console.log('error');
 				response.status = 'error';
 			}
 			else {

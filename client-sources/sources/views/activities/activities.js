@@ -56,7 +56,11 @@ export default class ActivitiesView extends JetView {
 					id: "TypeID",
 					sort: "text",
 					header: [_("Activity type"), { content: "selectFilter" }],
-					options: activitytypes
+					options: activitytypes,
+					template: (val) => {
+						val.Value
+					}
+					// template: "#Value#"
 				},
 				{
 					id: "DueDate",
@@ -74,7 +78,8 @@ export default class ActivitiesView extends JetView {
 					id: "ContactID",
 					sort: "text",
 					header: [_("Contact"), { content: "selectFilter" }],
-					options: contacts
+					options: contacts,
+					// template: "#FirstName# #LastName#"
 				},
 				{
 					id: "EditAct",
@@ -110,7 +115,7 @@ export default class ActivitiesView extends JetView {
 				onAfterFilter: () => {
 					this.$$("actTable").filter((obj) => {
 						let filter = this.$$("actFilter").getValue();
-						return this.actFiltering(obj, filter);								
+						return this.actFiltering(obj, filter);
 					}, "", true);
 				}
 			},
@@ -160,5 +165,5 @@ export default class ActivitiesView extends JetView {
 				}
 			}
 		);
-	}	
+	}
 }
