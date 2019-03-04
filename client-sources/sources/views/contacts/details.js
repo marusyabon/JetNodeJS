@@ -2,6 +2,7 @@ import { JetView } from "webix-jet";
 import { contacts } from "models/contacts";
 import ActivitiesTable from "./activities";
 import FilesTable from "./files";
+import {detailsTempl} from "../../templates/contacts";
 
 export default class ContactDetails extends JetView {
 	config() {
@@ -15,7 +16,7 @@ export default class ContactDetails extends JetView {
 
 		const buttons = {
 			cols: [
-				{
+				{ 
 					view: "button",
 					label: _("Delete"),
 					type: "icon",
@@ -42,26 +43,7 @@ export default class ContactDetails extends JetView {
 		const contactCard = {
 			localId: "contactCard",
 			minHeight: 270,
-			template: (contact) => {
-				return (
-					`<div class="col contact_card">
-						<div class="photo_wrap contact_avatar">
-							<img src="${contact.Photo ? contact.Photo : 'https://cs.unc.edu/~csturton/HWSecurityatUNC/images/person.png'}" />
-						</div>
-						<p class="contact_status">${contact.StatusID}</p>
-					</div>
-						<div class="col icon_p">
-						<p><i class="fas fa-envelope"></i>${contact.Email}</p>
-						<p><i class="fab fa-skype"></i>${contact.Skype}</p>
-						<p><i class="fas fa-tag"></i>${contact.Job}</p>
-						<p><i class="fas fa-briefcase"></i>${contact.Company}</p>
-					</div>
-					<div class="col icon_p">
-						<p><i class="fas fa-calendar-alt"></i>${contact.Birthday}</p>
-						<p><i class="fas fa-map-marker-alt"></i>${contact.Address}</p>
-					</div>`
-				);
-			}
+			template: detailsTempl
 		};
 
 		return {

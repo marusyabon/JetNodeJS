@@ -21,8 +21,8 @@ export default class FilesTable extends JetView {
 					id: "FileDate",
 					sort: "date",
 					header: _("Change Date"),
-					format:function(val){
-						return webix.Date.dateToStr("%d %M %y")(val);
+					format: (val) => {
+						webix.Date.dateToStr("%d %M %y")(val);
 					}
 				},
 				{
@@ -37,11 +37,11 @@ export default class FilesTable extends JetView {
 				}
 			],
 			onClick: {
-				"wxi-trash": function (e, id) {
+				"wxi-trash": (e, id) => {
 					webix.confirm({
 						title: "Remove this?",
 						text: "action cannot be undone",
-						callback: function (result) {
+						callback: (result) => {
 							if (result) {
 								files.remove(id);
 							}

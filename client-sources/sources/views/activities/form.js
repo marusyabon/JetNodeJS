@@ -123,7 +123,12 @@ export default class ActivitiesForm extends JetView {
 
 
 		if (formView.validate()) {
-			values.id ? activities.updateItem(values.id, values) : activities.add(values);
+			if(values.id) {
+				activities.updateItem(values.id, values);
+			}
+			else {
+				activities.add(values);
+			}
 
 			formView.clearValidation();
 			formView.clear();

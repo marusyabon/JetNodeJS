@@ -53,11 +53,11 @@ export default class ActivitiesTable extends JetView {
 				"wxi-pencil": (e, id) => {
 					this.actForm.showWindow(id);
 				},
-				"wxi-trash": function (e, id) {
+				"wxi-trash": (e, id) => {
 					webix.confirm({
 						title: _("Confirm_titile"),
 						text: _("Confirm_text"),
-						callback: function (result) {
+						callback: (result) => {
 							if (result) {
 								activities.remove(id);
 								return false;

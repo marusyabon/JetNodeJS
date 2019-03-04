@@ -6,7 +6,7 @@ export const contacts = new webix.DataCollection({
 	},
 	scheme: {
 		$change(obj) {
-			obj.value = obj.FirstName + " " + obj.LastName;
+			obj.value = `${obj.FirstName} ${obj.LastName}`;
 
 			const dateFormat = webix.Date.strToDate("%d-%m-%Y %H:%i");
 

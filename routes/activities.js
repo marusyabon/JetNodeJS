@@ -55,7 +55,7 @@ router.put('/:id', function (req, res, next) {
 		function (err, result) {
 			const response = {};
 			if (err) {
-				console.log('error');
+				console.log(err);
 				response.status = 'error';
 			}
 			else {

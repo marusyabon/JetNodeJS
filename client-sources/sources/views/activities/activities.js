@@ -98,11 +98,11 @@ export default class ActivitiesView extends JetView {
 				"wxi-pencil": (e, id) => {
 					this.actForm.showWindow(id);
 				},
-				"wxi-trash": function (e, id) {
+				"wxi-trash": (e, id) => {
 					webix.confirm({
 						title: _("Confirm_titile"),
 						text: _("Confirm_text"),
-						callback: function (result) {
+						callback: (result) => {
 							if (result) {
 								activities.remove(id);
 							}
@@ -133,7 +133,7 @@ export default class ActivitiesView extends JetView {
 		this.$$("actTable").registerFilter(
 			this.$$("actFilter"),
 			{
-				compare: function (cellValue, filterValue, obj) {
+				compare: (cellValue, filterValue, obj) => {
 					let today = new Date(),
 						day = webix.Date.datePart(today),
 						week = webix.Date.weekStart(today),
@@ -157,10 +157,10 @@ export default class ActivitiesView extends JetView {
 				}
 			},
 			{
-				getValue: function (view) {
-					return view.getValue();
+				getValue: (view) => {
+					view.getValue();
 				},
-				setValue: function (view, value) {
+				setValue: (view, value) => {
 					view.setValue(value);
 				}
 			}

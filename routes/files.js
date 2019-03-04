@@ -15,7 +15,6 @@ router.get('/', function (req, res, next) {
 				response.status = 'error';
 			}
 			else {
-				console.log(data);
 				data = data.map((item) => {
 					item.id = ObjectID(item._id);
 					return item
@@ -29,7 +28,7 @@ router.get('/', function (req, res, next) {
 
 router.post('/', function (req, res) {
 	let file = new FileModel(req.body);
-	console.log(file)
+
 	file.save((err) => {
 		const response = {};
 		if (err) {
@@ -39,8 +38,8 @@ router.post('/', function (req, res) {
 		else {
 			response.status = 'server';
 		}
+		res.send(response);
 	});
-	res.send(response);
 });
 
 router.post('/upload', function (req, res) {
