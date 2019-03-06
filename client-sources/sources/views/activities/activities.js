@@ -14,14 +14,14 @@ export default class ActivitiesView extends JetView {
 				{
 					view: "button",
 					value: "Export",
-					click: function() {
+					click: () => {
 						webix.toExcel($$("activitiesTable"));
 					}
 				},
 				{
 					view: "button",
 					value: "Refresh",
-					click: function() {
+					click: () => {
 						$$("activitiesTable").refresh()
 					}
 				}
