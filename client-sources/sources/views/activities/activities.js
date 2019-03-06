@@ -8,6 +8,26 @@ export default class ActivitiesView extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
 
+		const toolbar = {
+			view:"toolbar",
+			cols: [
+				{
+					view: "button",
+					value: "Export",
+					click: function() {
+						webix.toExcel($$("activitiesTable"));
+					}
+				},
+				{
+					view: "button",
+					value: "Refresh",
+					click: function() {
+						$$("activitiesTable").refresh()
+					}
+				}
+			]
+		};
+
 		const tabBar = {
 			cols: [
 				{
@@ -43,7 +63,7 @@ export default class ActivitiesView extends JetView {
 
 		const actTable = {
 			view: "datatable",
-			localId: "actTable",
+			id: "activitiesTable",
 			select: true,
 			columns: [
 				{
@@ -114,7 +134,7 @@ export default class ActivitiesView extends JetView {
 			},
 			on: {
 				onAfterFilter: () => {
-					this.$$("actTable").filter((obj) => {
+					$$("actTable").filter((obj) => {
 						const filter = this.$$("actFilter").getValue();
 						return this.actFiltering(obj, filter);
 					}, "", true);
@@ -123,15 +143,15 @@ export default class ActivitiesView extends JetView {
 		};
 
 		return {
-			rows: [tabBar, actTable]
+			rows: [tabBar, toolbar, actTable]
 		};
 	}
 
 	init() {
-		this.$$("actTable").sync(activities);
+		$$("activitiesTable").sync(activities);
 		this.actForm = this.ui(ActivitiesForm);
 
-		this.$$("actTable").registerFilter(
+		$$("activitiesTable").registerFilter(
 			this.$$("actFilter"),
 			{
 				compare: (cellValue, filterValue, obj) => {
