@@ -58,9 +58,8 @@ export default class ActivitiesView extends JetView {
 					header: [_("Activity type"), { content: "selectFilter" }],
 					options: activitytypes,
 					template: (val) => {
-						val.Value
+						return val.TypeID.Value
 					}
-					// template: "#Value#"
 				},
 				{
 					id: "DueDate",
@@ -79,7 +78,9 @@ export default class ActivitiesView extends JetView {
 					sort: "text",
 					header: [_("Contact"), { content: "selectFilter" }],
 					options: contacts,
-					// template: "#FirstName# #LastName#"
+					template: (val) => {
+						return `${val.ContactID.FirstName} ${val.ContactID.LastName}`
+					}
 				},
 				{
 					id: "EditAct",

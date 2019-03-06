@@ -22,7 +22,10 @@ export default class ActivitiesTable extends JetView {
 					id: "TypeID",
 					sort: "text",
 					header: [_("Activity type"), { content: "selectFilter" }],
-					options: activitytypes
+					options: activitytypes,
+					template: (val) => {
+						return val.TypeID.Value
+					}
 				},
 				{
 					id: "DueDate",

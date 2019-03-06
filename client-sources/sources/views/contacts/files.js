@@ -20,10 +20,7 @@ export default class FilesTable extends JetView {
 				{
 					id: "FileDate",
 					sort: "date",
-					header: _("Change Date"),
-					format: (val) => {
-						webix.Date.dateToStr("%d %M %y")(val);
-					}
+					header: _("Change Date")
 				},
 				{
 					id: "FileSize",
