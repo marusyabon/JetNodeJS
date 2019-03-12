@@ -1,5 +1,7 @@
 var path = require("path");
 var webpack = require("webpack");
+require("babel-core/register");
+require("babel-polyfill");
 
 module.exports = function(env) {
 
@@ -62,6 +64,9 @@ module.exports = function(env) {
 			})
 		],
 		devServer:{
+			contentBase: __dirname + "/public/",
+			inline: true,
+			host: '0.0.0.0',
 			stats:"errors-only"
 		}
 	};

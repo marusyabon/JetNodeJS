@@ -1,6 +1,6 @@
 import { JetView } from "webix-jet";
 import ActivitiesForm from "./form";
-import { activities } from "models/activities";
+import ActivitiesModel from "models/activities";
 import { activitytypes } from "models/activitytypes";
 import { contacts } from "models/contacts";
 
@@ -46,7 +46,7 @@ export default class ActivitiesView extends JetView {
 					],
 					on: {
 						"onChange":  () => {
-							this.$$("actTable").filterByAll();
+							$$("activitiesTable").filterByAll();
 						}
 					}
 				},
@@ -124,8 +124,8 @@ export default class ActivitiesView extends JetView {
 						title: _("Confirm_titile"),
 						text: _("Confirm_text"),
 						callback: (result) => {
-							if (result) {
-								activities.remove(id);
+							if(result) {
+								this.removeItem(id);
 							}
 							return false;
 						}
@@ -147,9 +147,14 @@ export default class ActivitiesView extends JetView {
 		};
 	}
 
-	init() {
-		$$("activitiesTable").sync(activities);
+	ready () {
+
 		this.actForm = this.ui(ActivitiesForm);
+	}
+
+	async init() {
+		const activitiesCollection = await ActivitiesModel.getDataFromServer();
+		$$("activitiesTable").parse(activitiesCollection);
 
 		$$("activitiesTable").registerFilter(
 			this.$$("actFilter"),
@@ -186,5 +191,18 @@ export default class ActivitiesView extends JetView {
 				}
 			}
 		);
+	}
+
+
+	async removeItem(id) {
+		const response = await ActivitiesModel.removeItem(id);
+
+		if (response) {
+			const collection = await ActivitiesModel.getDataFromServer();
+			if (collection) {
+				$$("activitiesTable").clearAll();
+				$$("activitiesTable").parse(collection);
+			}
+		}
 	}
 }

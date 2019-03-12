@@ -27,22 +27,24 @@ router.get('/', function (req, res, next) {
 
 router.post('/', function (req, res, next) {
 	let activity = new Activity(req.body);
-	activity.save((err) => {
+	activity.save((err, item) => {
 		const response = {};
 		if (err) {
 			console.log(err);
 			response.status = 'error';
 		}
 		else {
+			activity.id = ObjectID(req.body._id);
 			response.status = 'server';
+			response.data = item;
 		}
 		res.send(response);
 	});
 });
 
-router.put('/:id', function (req, res, next) {
+router.put('/', function (req, res, next) {
 	Activity.findOneAndUpdate(
-		{ _id: ObjectID(req.body._id) },
+		{ _id: req.body.id },
 		{
 			$set: {
 				Details: req.body.Details,
@@ -67,9 +69,9 @@ router.put('/:id', function (req, res, next) {
 	);
 });
 
-router.delete('/:id', function (req, res, next) {
+router.delete('/', function (req, res, next) {
 	Activity.findOneAndDelete(
-		{ _id: ObjectID(req.body._id) },
+		{ _id: req.body.id },
 		function (err, result) {
 			res.send(result);
 		}

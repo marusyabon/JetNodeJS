@@ -1,6 +1,6 @@
 import { JetView } from "webix-jet";
 import { contacts } from "models/contacts";
-import { activities } from "models/activities";
+import ActivitiesModel from "models/activities";
 import { activitytypes } from "models/activitytypes";
 
 export default class ActivitiesForm extends JetView {
@@ -83,7 +83,7 @@ export default class ActivitiesForm extends JetView {
 			this.$$("saveBtn").setValue(_("Save"));
 			this.$$("formPopup").getHead().setHTML(_("Edit activity"));
 
-			let values = webix.copy(activities.getItem(id));
+			let values = webix.copy(ActivitiesModel.getItem(id));
 
 			let dateTime = values.DueDate;
 
@@ -111,7 +111,7 @@ export default class ActivitiesForm extends JetView {
 		this.getRoot().show();
 	}
 
-	saveForm() {
+	async saveForm() {
 		const formView = this.$$("formView");
 		const values = formView.getValues();
 
@@ -121,13 +121,26 @@ export default class ActivitiesForm extends JetView {
 		values.DueDate = values._Date;
 		values.DueDate.setHours(h, m);
 
-
 		if (formView.validate()) {
 			if(values.id) {
-				activities.updateItem(values.id, values);
+				const response = await ActivitiesModel.updateItem(values.id, values);
+				if (response.status == 'server') {
+					const collection = await ActivitiesModel.getDataFromServer();
+					if (collection) {
+						$$("activitiesTable").clearAll();
+						$$("activitiesTable").parse(collection);
+					}
+				}
 			}
 			else {
-				activities.add(values);
+				const response = await ActivitiesModel.addItem(values);
+				if (response.status == 'server') {
+					const collection = await ActivitiesModel.getDataFromServer();
+					if (collection) {
+						$$("activitiesTable").clearAll();
+						$$("activitiesTable").parse(collection);
+					}
+				}
 			}
 
 			formView.clearValidation();

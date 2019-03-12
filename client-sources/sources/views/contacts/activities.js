@@ -1,5 +1,5 @@
 import {JetView} from "webix-jet";
-import { activities } from "models/activities";
+import ActivitiesModel from "models/activities";
 import { activitytypes } from "models/activitytypes";
 import ActivitiesForm from "../activities/form";
 
@@ -62,7 +62,7 @@ export default class ActivitiesTable extends JetView {
 						text: _("Confirm_text"),
 						callback: (result) => {
 							if (result) {
-								activities.remove(id);
+								ActivitiesModel.remove(id);
 								return false;
 							}
 						}
@@ -106,30 +106,28 @@ export default class ActivitiesTable extends JetView {
 		this.on(this.app, "onContactDelete", () => {
 			const id = this.getParam("id", true);
 
-			let actToRemove = activities.find((item) => {
+			let actToRemove = ActivitiesModel.find((item) => {
 				return item.ContactID == id
 			});
 			actToRemove.forEach((item) => {
-				activities.remove(item.id);
+				activities.removeItem(item.id);
 			});
 		});
 	}
 
 	urlChange() {
-		activities.waitData.then(() => {
-			const id = this.getParam("id", true);
-			const dTable = this.$$("actTable");
+		const id = this.getParam("id", true);
+		const dTable = this.$$("actTable");
 
-			// filter by contact id
+		// filter by contact id
 
-			if (id) {
-				dTable.sync(activities, () => {
-					dTable.filter((item) => {
-						const contactIdVal = item.ContactID;
-						return contactIdVal._id == id;
-					});
+		if (id) {
+			dTable.sync(ActivitiesModel, () => {
+				dTable.filter((item) => {
+					const contactIdVal = item.ContactID;
+					return contactIdVal._id == id;
 				});
-			}
-		});
+			});
+		}
 	}
 }
