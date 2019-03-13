@@ -146,13 +146,10 @@ export default class ActivitiesView extends JetView {
 			rows: [tabBar, toolbar, actTable]
 		};
 	}
-
-	ready () {
-
-		this.actForm = this.ui(ActivitiesForm);
-	}
-
+	
 	async init() {
+		this.actForm = this.ui(ActivitiesForm);
+
 		const activitiesCollection = await ActivitiesModel.getDataFromServer();
 		$$("activitiesTable").parse(activitiesCollection);
 

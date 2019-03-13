@@ -9,7 +9,7 @@ export default class ActivitiesTable extends JetView {
 
 		const _table = {
 			view: "datatable",
-			localId: "actTable",
+			id: "actTable",
 			select: true,
 			columns: [
 				{
@@ -62,8 +62,7 @@ export default class ActivitiesTable extends JetView {
 						text: _("Confirm_text"),
 						callback: (result) => {
 							if (result) {
-								ActivitiesModel.remove(id);
-								return false;
+								this.removeItem(id);
 							}
 						}
 					});
@@ -72,7 +71,7 @@ export default class ActivitiesTable extends JetView {
 			on: {
 				onAfterFilter: () => {
 					const id = this.getParam("id", true),
-						actTable = this.$$("actTable");
+						actTable = $$("actTable");
 					actTable.blockEvent();
 					actTable.filter((obj) => {
 						return obj.ContactID == id;
@@ -115,19 +114,33 @@ export default class ActivitiesTable extends JetView {
 		});
 	}
 
-	urlChange() {
+	async urlChange() {
 		const id = this.getParam("id", true);
-		const dTable = this.$$("actTable");
+		const dTable = $$("actTable");
 
 		// filter by contact id
 
 		if (id) {
-			dTable.sync(ActivitiesModel, () => {
-				dTable.filter((item) => {
+			const activitiesCollection = await ActivitiesModel.getDataFromServer();
+			const filteredData = activitiesCollection.filter((item) => {
 					const contactIdVal = item.ContactID;
 					return contactIdVal._id == id;
 				});
-			});
+			dTable.clearAll();
+			dTable.parse(filteredData);
 		}
+	}
+
+	async removeItem(id) {
+		const response = await ActivitiesModel.removeItem(id);
+		$$("actTable").remove(id)
+
+		// if (response) {
+		// 	const collection = await ActivitiesModel.getDataFromServer();
+		// 	if (collection) {
+		// 		$$("actTable").clearAll();
+		// 		$$("actTable").parse(collection);
+		// 	}
+		// }
 	}
 }

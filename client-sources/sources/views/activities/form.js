@@ -127,8 +127,21 @@ export default class ActivitiesForm extends JetView {
 				if (response.status == 'server') {
 					const collection = await ActivitiesModel.getDataFromServer();
 					if (collection) {
-						$$("activitiesTable").clearAll();
-						$$("activitiesTable").parse(collection);
+						let _contactId = this.getParam("id", true);
+						if (_contactId) {
+							const filteredData = collection.filter((item) => {
+								const contactIdVal = item.ContactID;
+								console.log(_contactId);
+								return contactIdVal._id == _contactId;
+							});
+							$$("actTable").clearAll();
+							$$("actTable").parse(filteredData);
+						}
+						else {
+							$$("activitiesTable").clearAll();
+							$$("activitiesTable").parse(collection);
+						}
+
 					}
 				}
 			}
@@ -137,8 +150,20 @@ export default class ActivitiesForm extends JetView {
 				if (response.status == 'server') {
 					const collection = await ActivitiesModel.getDataFromServer();
 					if (collection) {
-						$$("activitiesTable").clearAll();
-						$$("activitiesTable").parse(collection);
+						let _contactId = this.getParam("id", true);
+						if (_contactId) {
+							const filteredData = collection.filter((item) => {
+							const contactIdVal = item.ContactID;
+							console.log(_contactId);
+							return contactIdVal._id == _contactId;
+						});
+							$$("actTable").clearAll();
+							$$("actTable").parse(filteredData);
+						}
+						else {
+							$$("activitiesTable").clearAll();
+							$$("activitiesTable").parse(collection);
+						}
 					}
 				}
 			}
