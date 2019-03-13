@@ -25,13 +25,14 @@ router.get('/', function (req, res, next) {
 router.post('/', function (req, res, next) {
 	let activitytype = new Activitytype(req.body);
 	activitytype.id = ObjectID(req.body._id);
-	activitytype.save((err) => {
+	activitytype.save((err, item) => {
 		const response = {};
 		if (err) {
 			response.status = 'error';
 		}
 		else {
 			response.status = 'server';
+			response.data = item;
 		}
 		res.send(response);
 	});

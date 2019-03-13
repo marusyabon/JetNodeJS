@@ -42,19 +42,19 @@ export default class DataTable extends JetView{
 						}
 					}
 				}
-			]
+			],
+			on: {
+				onDataUpdate: (id, value) => {
+					console.log(id, value)
+				}
+			}
 		};
 
 		const addBtn = {
 			view: "button",
 			label: _("Add"),
 			type: "form",
-			click: () => {
-				this._tdata.add({
-					"Value": "",
-					"Icon": ""
-				});
-			}
+			click: () => {this.addVal()}
 		};
 
 		const removeBtn = {
@@ -88,7 +88,16 @@ export default class DataTable extends JetView{
 		};
 	}
 
-	init(view){
-		view.queryView("datatable").sync(this._tdata);
+	async addVal() {
+		debugger
+		await this._tdata.addItem({
+			"Value": "",
+			"Icon": ""
+		});	
+	}
+
+	async init(view){
+		const activitiesCollection = await this._tdata.getDataFromServer();
+		view.queryView("datatable").parse(activitiesCollection);
 	}
 }
