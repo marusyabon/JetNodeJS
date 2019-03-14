@@ -3,9 +3,9 @@ const Schema = mongoose.Schema;
 
 const ActivitiesSchema = new Schema({
 	Details: String,
-	TypeID: {type: Schema.Types.ObjectId, ref: "Activitytype"},
+	TypeID: {type: String, ref: "Activitytype"},
 	State: String,
-	ContactID: {type: Schema.Types.ObjectId, ref: "Contact"},
+	ContactID: {type: String, ref: "Contact"},
 	DueDate: String
 });
 

@@ -92,9 +92,10 @@ export default class ContactsView extends JetView {
 		});
 	}
 
-	urlChange() {
-		const contactsCollection = ContactsModel.getCollection();
-		const id = this.getParam("id") || contactsCollection.getFirstId();
+	async urlChange() {
+		const contactsCollection = await ContactsModel.getDataFromServer();
+		// (contactsCollection)
+		const id = this.getParam("id") || this.$$("list").getFirstId();
 		const isExist = contactsCollection.find(item => item.id == id)
 		if (id && isExist) {
 			this.$$("list").select(id);

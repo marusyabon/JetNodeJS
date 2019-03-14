@@ -1,5 +1,5 @@
 import { JetView } from "webix-jet";
-import { contacts } from "models/contacts";
+import ContactsModel from "models/contacts";
 import ActivitiesTable from "./activities";
 import FilesTable from "./files";
 import {detailsTempl} from "../../templates/contacts";
@@ -81,11 +81,15 @@ export default class ContactDetails extends JetView {
 	}
 
 	async urlChange() {
+		debugger
 		const contactsCollection = await ContactsModel.getDataFromServer();
 
 		const id = this.getParam("id", true);
-		if (id && contactsCollection.exists(id)) {
-			let contactData = webix.copy(contactsCollection.getItem(id));
+		console.log(contactsCollection)
+		const isExist = contactsCollection.find(item => item.id == id)
+		if (id && isExist) {
+			let contactData = webix.copy(contactsCollection.find(item => item.id == id));
+			console.log(contactData)
 			const StatusIdVal = contactData.StatusID;
 			contactData.StatusID = StatusIdVal.value;
 

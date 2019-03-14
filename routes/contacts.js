@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const Contact = require('../models/contacts');
-const ObjectID = require('mongodb').ObjectID;
 
 
 /* GET users listing. */
@@ -15,10 +14,7 @@ router.get('/', function (req, res, next) {
 			response.status = 'error';
 		}
 		else {
-			data = data.map((item) => {
-				item.id = ObjectID(item._id);
-				return item
-			});
+			response.status = 'server';
 			response.data = data;
 		}
 		res.send(response);
