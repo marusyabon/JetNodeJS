@@ -8,11 +8,10 @@ class ActivitytypesModel {
 	async getDataFromServer() {
 		const responseData = await webix.ajax().get(this._getUrl);
 		this._data = responseData.json().data;
-		this._data.value = this._data.Value;
 		return this._data;
 	}
-	async sendDataToServer(saveData) {
-		const responseData = await webix.ajax().post(this._saveUrl, saveData);
+	async sendDataToServer(item) {
+		const responseData = await webix.ajax().post(this._saveUrl, item);
 		return responseData.json();
 	}
 
@@ -30,7 +29,7 @@ class ActivitytypesModel {
 		return responseData.json();
 	}
 
-	async updateItem(id, item) { 
+	async updateItem(id, item) {
 		const response = await webix.ajax().put(this._saveUrl, item);
 		return response.json();
 	}

@@ -16,7 +16,7 @@ export default class ContactDetails extends JetView {
 
 		const buttons = {
 			cols: [
-				{ 
+				{
 					view: "button",
 					label: _("Delete"),
 					type: "icon",
@@ -80,25 +80,26 @@ export default class ContactDetails extends JetView {
 		};
 	}
 
-	urlChange() {
-		contacts.waitData.then(() => {
-			const id = this.getParam("id", true);
-			if (id && contacts.exists(id)) {
-				let contactData = webix.copy(contacts.getItem(id));
-				const StatusIdVal = contactData.StatusID;
-				contactData.StatusID = StatusIdVal.Value;
+	async urlChange() {
+		const contactsCollection = await ContactsModel.getDataFromServer();
 
-				let format = webix.Date.dateToStr("%d-%m-%Y");
-				contactData.Birthday = format(contactData.Birthday);
+		const id = this.getParam("id", true);
+		if (id && contactsCollection.exists(id)) {
+			let contactData = webix.copy(contactsCollection.getItem(id));
+			const StatusIdVal = contactData.StatusID;
+			contactData.StatusID = StatusIdVal.value;
 
-				this.$$("contactTitle").setValue(contactData.FirstName + " " + contactData.LastName);
-				this.$$("contactCard").setValues(contactData);
-			}
-		});
+			let format = webix.Date.dateToStr("%d-%m-%Y");
+			contactData.Birthday = format(contactData.Birthday);
+
+			this.$$("contactTitle").setValue(contactData.FirstName + " " + contactData.LastName);
+			this.$$("contactCard").setValues(contactData);
+		}
 	}
 
 	removeContact() {
 		const _ = this.app.getService("locale")._;
+		const contactsCollection = 
 
 		webix.confirm({
 			title: _("Confirm_titile"),
@@ -108,7 +109,7 @@ export default class ContactDetails extends JetView {
 					this.app.callEvent("onContactDelete");
 
 					const id = this.getParam("id", true);
-					contacts.remove(id);
+					contactsCollection.removeItem(id);
 				}
 			}
 		});

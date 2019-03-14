@@ -1,12 +1,13 @@
 import { JetView } from "webix-jet";
 import ActivitiesForm from "./form";
 import ActivitiesModel from "models/activities";
-import { activitytypes } from "models/activitytypes";
+import ActivitytypesModel from "models/activitytypes";
 import { contacts } from "models/contacts";
 
 export default class ActivitiesView extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
+		const activitytypes = () => {this.getActivitytypes()};
 
 		const toolbar = {
 			view:"toolbar",
@@ -78,7 +79,7 @@ export default class ActivitiesView extends JetView {
 					header: [_("Activity type"), { content: "selectFilter" }],
 					options: activitytypes,
 					template: (val) => {
-						return val.TypeID.Value
+						return val.TypeID.value
 					}
 				},
 				{
@@ -146,7 +147,7 @@ export default class ActivitiesView extends JetView {
 			rows: [tabBar, toolbar, actTable]
 		};
 	}
-	
+
 	async init() {
 		this.actForm = this.ui(ActivitiesForm);
 
@@ -201,5 +202,11 @@ export default class ActivitiesView extends JetView {
 				$$("activitiesTable").parse(collection);
 			}
 		}
+	}
+
+	async getActivitytypes() {
+		let activitytypesData = await ActivitytypesModel.getDataFromServer();
+		console.log(activitytypesData)
+		return activitytypesData
 	}
 }

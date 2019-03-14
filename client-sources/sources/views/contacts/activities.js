@@ -1,11 +1,12 @@
 import {JetView} from "webix-jet";
 import ActivitiesModel from "models/activities";
-import { activitytypes } from "models/activitytypes";
+import ActivitytypesModel from "models/activitytypes";
 import ActivitiesForm from "../activities/form";
 
 export default class ActivitiesTable extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
+		const activitytypes = this.getActivitytypes();
 
 		const _table = {
 			view: "datatable",
@@ -24,7 +25,7 @@ export default class ActivitiesTable extends JetView {
 					header: [_("Activity type"), { content: "selectFilter" }],
 					options: activitytypes,
 					template: (val) => {
-						return val.TypeID.Value
+						return val.TypeID.value
 					}
 				},
 				{
@@ -142,5 +143,11 @@ export default class ActivitiesTable extends JetView {
 		// 		$$("actTable").parse(collection);
 		// 	}
 		// }
+	}
+
+	async getActivitytypes() {
+		let activitytypesData = await ActivitytypesModel.getDataFromServer();
+		console.log(activitytypesData)
+		return activitytypesData
 	}
 }

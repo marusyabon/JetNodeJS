@@ -1,8 +1,9 @@
 import {JetView} from "webix-jet";
 
 export default class DataTable extends JetView{
-	constructor(app,name,data,label,options){
+	constructor(id,app,name,data,label,options){
 		super(app, name);
+		this._id = id;
 		this._tdata = data;
 		this._label = label;
 		this._options = options;
@@ -19,12 +20,13 @@ export default class DataTable extends JetView{
 
 		const _table = {
 			view: "datatable",
+			id: this._id,
 			select: true,
 			editable: true,
 			editaction:"dblclick",
 			columns: [
 				{
-					id: "Value",
+					id: "value",
 					sort: "text",
 					header: _("Type name"),
 					fillspace: true,
@@ -45,7 +47,8 @@ export default class DataTable extends JetView{
 			],
 			on: {
 				onDataUpdate: (id, value) => {
-					console.log(id, value)
+					console.log(id, value);
+					this.updateVal(id, value)
 				}
 			}
 		};
@@ -54,7 +57,9 @@ export default class DataTable extends JetView{
 			view: "button",
 			label: _("Add"),
 			type: "form",
-			click: () => {this.addVal()}
+			click: () => {
+				this.addVal()
+			}
 		};
 
 		const removeBtn = {
@@ -66,8 +71,9 @@ export default class DataTable extends JetView{
 					text: _("Confirm_text"),
 					callback: (result) => {
 						if (result) {
-							const item = this.getRoot().queryView({view:"datatable"}).getSelectedId();
-							this._tdata.remove(item);
+							const itemId = this.getRoot().queryView({view:"datatable"}).getSelectedId();
+							this.removeVal(itemId);
+							$$(this._id).remove(itemId);
 						}
 						return false;
 					}
@@ -88,16 +94,32 @@ export default class DataTable extends JetView{
 		};
 	}
 
-	async addVal() {
-		debugger
-		await this._tdata.addItem({
-			"Value": "",
-			"Icon": ""
-		});	
+	async init(){
+		const collection = this._tdata;
+		const activitiesCollection = await collection.getDataFromServer();
+		$$(this._id).parse(activitiesCollection);
 	}
 
-	async init(view){
-		const activitiesCollection = await this._tdata.getDataFromServer();
-		view.queryView("datatable").parse(activitiesCollection);
+	async addVal(id) {
+		const response = await this._tdata.addItem({
+			"value": "",
+			"Icon": ""
+		});
+		if (response) {
+			const collection = await this._tdata.getDataFromServer();
+			if (collection) {
+				$$(this._id).clearAll();
+				$$(this._id).parse(collection);
+			}
+		}
+
+	}
+
+	async updateVal(id, value) {
+		await this._tdata.updateItem(id, value);
+	}
+
+	async removeVal(id) {
+		await this._tdata.removeItem(id);
 	}
 }

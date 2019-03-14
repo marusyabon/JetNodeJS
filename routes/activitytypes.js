@@ -12,10 +12,6 @@ router.get('/', function (req, res, next) {
 		}
 		else {
 			response.status = 'server';
-			data = data.map((item) => {
-				item.id = ObjectID(item._id);
-				return item
-			});
 			response.data = data;
 		}
 		res.send(response);
@@ -24,7 +20,6 @@ router.get('/', function (req, res, next) {
 
 router.post('/', function (req, res, next) {
 	let activitytype = new Activitytype(req.body);
-	activitytype.id = ObjectID(req.body._id);
 	activitytype.save((err, item) => {
 		const response = {};
 		if (err) {
@@ -38,9 +33,9 @@ router.post('/', function (req, res, next) {
 	});
 });
 
-router.put('/:id', function (req, res, next) {
+router.put('/', function (req, res, next) {
 	Activitytype.findOneAndUpdate(
-		{ _id: ObjectID(req.body._id) },
+		{ _id: req.body.id },
 		{
 			$set: {
 				Value: req.body.Value,
@@ -61,9 +56,9 @@ router.put('/:id', function (req, res, next) {
 	);
 });
 
-router.delete('/:id', function (req, res, next) {
+router.delete('/', function (req, res, next) {
 	Activitytype.findOneAndDelete(
-		{ _id: ObjectID(req.body._id) },
+		{ _id: req.body.id },
 		function (err, result) {
 			res.send(result);
 		}

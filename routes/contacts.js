@@ -27,7 +27,7 @@ router.get('/', function (req, res, next) {
 
 router.post('/', function (req, res, next) {
 	let contact = new Contact(req.body);
-	contact.save((err) => {
+	contact.save((err, item) => {
 		const response = {};
 		if (err) {
 			console.log(err);
@@ -35,15 +35,15 @@ router.post('/', function (req, res, next) {
 		}
 		else {
 			response.status = 'server';
-			response.data = res.body;
+			response.data = item;
 		}
 		res.send(response);
 	});
 });
 
-router.put('/:id', function (req, res, next) {
+router.put('/', function (req, res, next) {
 	Contact.findOneAndUpdate(
-		{ _id: ObjectID(req.body._id) },
+		{ _id: req.body.id },
 		{
 			$set: {
 				FirstName: req.body.FirstName,
@@ -73,9 +73,9 @@ router.put('/:id', function (req, res, next) {
 	);
 });
 
-router.delete('/:id', function (req, res, next) {
+router.delete('/', function (req, res, next) {
 	Contact.findOneAndDelete(
-		{ _id: ObjectID(req.body._id) },
+		{ _id: req.body.id },
 		function (err, result) {
 			res.send(result);
 		}

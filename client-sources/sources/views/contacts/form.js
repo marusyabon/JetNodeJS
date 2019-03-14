@@ -1,10 +1,11 @@
 import {JetView} from "webix-jet";
 import {contacts} from "models/contacts";
-import {statuses} from "models/statuses";
+import StatusesModel from "models/statuses";
 
 export default class ContactsForm extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
+		const statuses = () => {this.getStatuses()};
 
 		return {
 			view: "form",
@@ -29,7 +30,7 @@ export default class ContactsForm extends JetView {
 								{ view: "text", label: _("First name"), name: "FirstName" },
 								{ view: "text", label: _("Last name"), name: "LastName" },
 								{ view: "datepicker", label: _("Joining date"), name: "StartDate", /*format: webix.Date.dateToStr("%d %M %Y"),*/ },
-								{ view: "combo", label: _("Status"), name: "StatusID", options: { body: { template: "#Value#", data: statuses } } },
+								{ view: "combo", label: _("Status"), name: "StatusID", options: { body: { template: "#value#", data: statuses } } },
 								{ view: "text", label: _("Job"), name: "Job" },
 								{ view: "text", label: _("Company"), name: "Company" },
 								{ view: "text", label: _("Website"), name: "Website" },
@@ -183,5 +184,10 @@ export default class ContactsForm extends JetView {
 			formView.clearValidation();
 			formView.clear();
 		}
+	}
+
+	async getStatuses() {
+		let statusesData = await StatusesModel.getDataFromServer();
+		return statusesData
 	}
 }

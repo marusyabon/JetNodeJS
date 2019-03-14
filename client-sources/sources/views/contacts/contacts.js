@@ -1,5 +1,5 @@
 import {JetView} from "webix-jet";
-import {contacts} from "models/contacts";
+import ContactsModel from "models/contacts";
 import {userInfo} from "../../templates/contacts";
 
 export default class ContactsView extends JetView {
@@ -79,11 +79,13 @@ export default class ContactsView extends JetView {
 		};
 	}
 
-	init() {
-		this.$$("list").sync(contacts);
+	async init() {
+		const contactsCollection = await ContactsModel.getDataFromServer();
+
+		this.$$("list").parse(contactsCollection);
 
 		this.on(this.app, "onContactDelete", () => {
-			const id = contacts.getFirstId();
+			const id = contactsCollection.getFirstId();
 			if (id) {
 				this.$$("list").select(id);
 			}
@@ -91,11 +93,11 @@ export default class ContactsView extends JetView {
 	}
 
 	urlChange() {
-		contacts.waitData.then(() => {
-			const id = this.getParam("id") || contacts.getFirstId();
-			if (id && contacts.exists(id)) {
-				this.$$("list").select(id);
-			}
-		});
+		const contactsCollection = ContactsModel.getCollection();
+		const id = this.getParam("id") || contactsCollection.getFirstId();
+		const isExist = contactsCollection.find(item => item.id == id)
+		if (id && isExist) {
+			this.$$("list").select(id);
+		}
 	}
 }

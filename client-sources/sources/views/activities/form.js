@@ -1,11 +1,12 @@
 import { JetView } from "webix-jet";
 import { contacts } from "models/contacts";
 import ActivitiesModel from "models/activities";
-import { activitytypes } from "models/activitytypes";
+import ActivitytypesModel from "models/activitytypes";
 
 export default class ActivitiesForm extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
+		const activitytypes = () => {this.getActivitytypes()};
 
 		return {
 			view: "window",
@@ -19,7 +20,7 @@ export default class ActivitiesForm extends JetView {
 				localId: "formView",
 				elements: [
 					{ view: "textarea", label: _("Details"), name: "Details" },
-					{ view: "combo", label: _("Type"), name: "TypeID", options: { body: { template: "#Value#", data: activitytypes } } },
+					{ view: "combo", label: _("Type"), name: "TypeID", options: { body: { template: "#value#", data: activitytypes } } },
 					{ view: "combo", label: _("Contact"), name: "ContactID", localId: "ContactID", options: { body: { template: "#FirstName# #LastName#", data: contacts } } },
 					{
 						margin: 20,
@@ -157,7 +158,7 @@ export default class ActivitiesForm extends JetView {
 							console.log(_contactId);
 							return contactIdVal._id == _contactId;
 						});
-							$$("actTable").clearAll();
+							$$("actTabcdle").clearAll();
 							$$("actTable").parse(filteredData);
 						}
 						else {
@@ -172,5 +173,10 @@ export default class ActivitiesForm extends JetView {
 			formView.clear();
 			this.$$("formPopup").hide();
 		}
+	}
+
+	async getActivitytypes() {
+		let activitytypesData = await ActivitytypesModel.getDataFromServer();
+		return activitytypesData
 	}
 }
