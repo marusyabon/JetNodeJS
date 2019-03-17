@@ -1,5 +1,5 @@
 import { JetView } from "webix-jet";
-import { contacts } from "models/contacts";
+import ContactsModel from "models/contacts";
 import ActivitiesModel from "models/activities";
 import ActivitytypesModel from "models/activitytypes";
 
@@ -20,8 +20,8 @@ export default class ActivitiesForm extends JetView {
 				localId: "formView",
 				elements: [
 					{ view: "textarea", label: _("Details"), name: "Details" },
-					{ view: "combo", label: _("Type"), name: "TypeID", options: { body: { template: "#value#", data: activitytypes } } },
-					{ view: "combo", label: _("Contact"), name: "ContactID", localId: "ContactID", options: { body: { template: "#FirstName# #LastName#", data: contacts } } },
+					{ view: "combo", label: _("Type"), name: "TypeID", localId: "TypeID" },
+					{ view: "combo", label: _("Contact"), name: "ContactID", localId: "ContactID", options: { body: { template: "#FirstName# #LastName#" } } },
 					{
 						margin: 20,
 						cols: [
@@ -73,8 +73,17 @@ export default class ActivitiesForm extends JetView {
 		};
 	}
 
-	showWindow(id) {
+	async showWindow(id) {
 		const _ = this.app.getService("locale")._;
+
+		const contacts = await ContactsModel.getDataFromServer();
+		const types = await ActivitytypesModel.getDataFromServer();
+		contacts.forEach(item=> item.value = `${item.FirstName} ${item.LastName}`);
+		types.forEach(item=> item.value = item.Value);
+
+		this.$$("TypeID").define("suggest", types);
+		this.$$("ContactID").define("suggest", contacts);
+
 
 		const formView = this.$$("formView");
 		formView.clearValidation();
@@ -113,6 +122,7 @@ export default class ActivitiesForm extends JetView {
 	}
 
 	async saveForm() {
+
 		const formView = this.$$("formView");
 		const values = formView.getValues();
 
@@ -177,6 +187,7 @@ export default class ActivitiesForm extends JetView {
 
 	async getActivitytypes() {
 		let activitytypesData = await ActivitytypesModel.getDataFromServer();
+		console.log(activitytypesData)
 		return activitytypesData
 	}
 }

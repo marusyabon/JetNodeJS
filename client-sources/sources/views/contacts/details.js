@@ -41,7 +41,7 @@ export default class ContactDetails extends JetView {
 		};
 
 		const contactCard = {
-			localId: "contactCard",
+			id: "contactCard",
 			minHeight: 270,
 			template: detailsTempl
 		};
@@ -81,39 +81,38 @@ export default class ContactDetails extends JetView {
 	}
 
 	async urlChange() {
-		debugger
 		const contactsCollection = await ContactsModel.getDataFromServer();
 
 		const id = this.getParam("id", true);
-		console.log(contactsCollection)
-		const isExist = contactsCollection.find(item => item.id == id)
-		if (id && isExist) {
-			let contactData = webix.copy(contactsCollection.find(item => item.id == id));
-			console.log(contactData)
-			const StatusIdVal = contactData.StatusID;
-			contactData.StatusID = StatusIdVal.value;
+		const target = contactsCollection.find(item => item.id == id);
+
+		if (id && target) {
+			let contactData = webix.copy(target);
+			contactData.StatusID = contactData.StatusID["Value"];
 
 			let format = webix.Date.dateToStr("%d-%m-%Y");
 			contactData.Birthday = format(contactData.Birthday);
 
 			this.$$("contactTitle").setValue(contactData.FirstName + " " + contactData.LastName);
-			this.$$("contactCard").setValues(contactData);
+			$$("contactCard").setValues(contactData);
 		}
 	}
 
-	removeContact() {
+	async removeContact() {
 		const _ = this.app.getService("locale")._;
-		const contactsCollection = 
 
 		webix.confirm({
 			title: _("Confirm_titile"),
 			text: _("Confirm_text"),
-			callback: (result) => {
+			callback: async (result) => {
 				if (result) {
 					this.app.callEvent("onContactDelete");
 
 					const id = this.getParam("id", true);
-					contactsCollection.removeItem(id);
+					const result = await ContactsModel.removeItem(id);
+					if(result) {
+						$$("contactsList").remove(id)
+					}
 				}
 			}
 		});

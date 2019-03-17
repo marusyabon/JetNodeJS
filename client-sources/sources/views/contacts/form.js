@@ -1,11 +1,11 @@
 import {JetView} from "webix-jet";
 import ContactsModel from "models/contacts";
 import StatusesModel from "models/statuses";
+import {isExist} from "common";
 
 export default class ContactsForm extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
-		const statuses = () => {this.getStatuses()};
 
 		return {
 			view: "form",
@@ -30,7 +30,7 @@ export default class ContactsForm extends JetView {
 								{ view: "text", label: _("First name"), name: "FirstName" },
 								{ view: "text", label: _("Last name"), name: "LastName" },
 								{ view: "datepicker", label: _("Joining date"), name: "StartDate", /*format: webix.Date.dateToStr("%d %M %Y"),*/ },
-								{ view: "combo", label: _("Status"), name: "StatusID", options: { body: { template: "#value#", data: statuses } } },
+								{ view: "combo", label: _("Status"), localId: "StatusID", name: "StatusID", suggest: { body: { data: [] } } },
 								{ view: "text", label: _("Job"), name: "Job" },
 								{ view: "text", label: _("Company"), name: "Company" },
 								{ view: "text", label: _("Website"), name: "Website" },
@@ -140,9 +140,15 @@ export default class ContactsForm extends JetView {
 
 	async init() {
 		const _ = this.app.getService("locale")._;
-
 		const contactsCollection = await ContactsModel.getDataFromServer();
 		const statusesCollection = await StatusesModel.getDataFromServer();
+
+		const statuses = statusesCollection.map((item) => {
+			item.value = item.Value;
+			return item
+		});
+
+		this.$$("StatusID").define("suggest", statuses);
 
 		const id = this.getParam("id", true);
 		const isNew = this.getParam("new", true);
@@ -152,18 +158,11 @@ export default class ContactsForm extends JetView {
 			this.$$("saveBtn").setValue(_("Add"));
 		}
 
-		function isExist (collection, id) {
-			collection.find(item => item.id == id);
-		}
-
 		if (!isNew && id && isExist(contactsCollection, id)) {
 			const contactData = webix.copy(contactsCollection.find(item => item.id == id));
-			const statusIdVal = contactData.StatusID;
-			console.log(statusIdVal)
-			const statusData = webix.copy(statusesCollection.find(item => item.id == id));
-			const flag = isExist(statusesCollection, statusIdVal._id);
+			const statusData = webix.copy(statusesCollection.find(item => item.id == contactData.StatusID["id"]));
 
-			contactData.StatusID = flag ? statuses.getItem(statusIdVal._id).id : {};
+			contactData.StatusID = statusData ? statusData.id : {};
 
 			this.$$("cPhoto").setValues(contactData);
 			this.$$("contactForm").setValues(contactData);
@@ -182,21 +181,19 @@ export default class ContactsForm extends JetView {
 			const isNew = this.getParam("new", true);
 
 			if(isNew) {
-				await ContactsModel.addItem(values)
+				await ContactsModel.addItem(values);
 			}
 			else {
-				await ContactsModel.updateItem(values.id, values);
-			} 
+				await ContactsModel.updateItem(id, {id: id, ...values});
+			}
+			const contactsCollection = await ContactsModel.getDataFromServer();
+
+			$$("contactsList").parse(contactsCollection);
 
 			this.show(`/top/contacts.contacts?id=${values._id}/contacts.details`);
 
 			formView.clearValidation();
 			formView.clear();
 		}
-	}
-
-	async getStatuses() {
-		let statusesData = await StatusesModel.getDataFromServer();
-		return statusesData
 	}
 }

@@ -100,18 +100,19 @@ export default class ActivitiesTable extends JetView {
 		};
 	}
 
-	init() {
+	async init() {
 		this.actForm = this.ui(ActivitiesForm);
+		const activities = await ActivitiesModel.getDataFromServer();
 
 		this.on(this.app, "onContactDelete", () => {
 			const id = this.getParam("id", true);
+			let activitiesToRemove = activities.filter(item => item.ContactID["id"] == id);
 
-			let actToRemove = ActivitiesModel.find((item) => {
-				return item.ContactID == id
-			});
-			actToRemove.forEach((item) => {
-				activities.removeItem(item.id);
-			});
+			if(activitiesToRemove) {
+				activitiesToRemove.forEach((item) => {
+					ActivitiesModel.removeItem(item.id);
+				});
+			}
 		});
 	}
 
@@ -123,10 +124,9 @@ export default class ActivitiesTable extends JetView {
 
 		if (id) {
 			const activitiesCollection = await ActivitiesModel.getDataFromServer();
-			const filteredData = activitiesCollection.filter((item) => {
-					const contactIdVal = item.ContactID;
-					return contactIdVal._id == id;
-				});
+			const filteredData = activitiesCollection.filter(
+				item => item.ContactID["id"] == id
+			)
 			dTable.clearAll();
 			dTable.parse(filteredData);
 		}
@@ -147,7 +147,6 @@ export default class ActivitiesTable extends JetView {
 
 	async getActivitytypes() {
 		let activitytypesData = await ActivitytypesModel.getDataFromServer();
-		console.log(activitytypesData)
 		return activitytypesData
 	}
 }

@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const Status = require('../models/statuses');
-const ObjectID = require('mongodb').ObjectID;
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {

@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const ContactSchema = new Schema({
     FirstName: String,
 	LastName: String,
-	StatusID: {type: String, ref: "Statuse"},
+	StatusID: {type: Schema.Types.ObjectId, ref: "Statuse"},
 	Email: String,
 	Photo: String,
 	Skype: String,

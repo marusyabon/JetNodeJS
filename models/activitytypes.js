@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ActivitytypeSchema = new Schema({
-    value: String,
+    Value: String,
 	Icon: String
 });
 

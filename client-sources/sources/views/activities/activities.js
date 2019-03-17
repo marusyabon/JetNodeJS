@@ -2,12 +2,11 @@ import { JetView } from "webix-jet";
 import ActivitiesForm from "./form";
 import ActivitiesModel from "models/activities";
 import ActivitytypesModel from "models/activitytypes";
-import { contacts } from "models/contacts";
+import ContactsModel from "models/contacts";
 
 export default class ActivitiesView extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
-		const activitytypes = () => {this.getActivitytypes()};
 
 		const toolbar = {
 			view:"toolbar",
@@ -77,7 +76,7 @@ export default class ActivitiesView extends JetView {
 					id: "TypeID",
 					sort: "text",
 					header: [_("Activity type"), { content: "selectFilter" }],
-					options: activitytypes,
+					options: ActivitytypesModel._data,
 					template: (val) => {
 						return val.TypeID.value
 					}
@@ -98,7 +97,7 @@ export default class ActivitiesView extends JetView {
 					id: "ContactID",
 					sort: "text",
 					header: [_("Contact"), { content: "selectFilter" }],
-					options: contacts,
+					// options: contacts,
 					template: (val) => {
 						return `${val.ContactID.FirstName} ${val.ContactID.LastName}`
 					}
@@ -140,7 +139,7 @@ export default class ActivitiesView extends JetView {
 						return this.actFiltering(obj, filter);
 					}, "", true);
 				}
-			},
+			}
 		};
 
 		return {
@@ -150,6 +149,8 @@ export default class ActivitiesView extends JetView {
 
 	async init() {
 		this.actForm = this.ui(ActivitiesForm);
+		await ActivitytypesModel.getDataFromServer();
+		await ContactsModel.getDataFromServer();
 
 		const activitiesCollection = await ActivitiesModel.getDataFromServer();
 		$$("activitiesTable").parse(activitiesCollection);
@@ -190,7 +191,6 @@ export default class ActivitiesView extends JetView {
 			}
 		);
 	}
-
 
 	async removeItem(id) {
 		const response = await ActivitiesModel.removeItem(id);

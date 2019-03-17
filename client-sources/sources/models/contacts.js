@@ -45,7 +45,7 @@ class ContactsModel {
 	}
 
 	async removeItem(id) {
-		const response = await webix.ajax().del(this._saveUrl, { id: id.row });
+		const response = await webix.ajax().del(this._saveUrl, { id: id });
 		return response.json();
 
 	}

@@ -26,7 +26,7 @@ export default class DataTable extends JetView{
 			editaction:"dblclick",
 			columns: [
 				{
-					id: "value",
+					id: "Value",
 					sort: "text",
 					header: _("Type name"),
 					fillspace: true,
@@ -102,7 +102,7 @@ export default class DataTable extends JetView{
 
 	async addVal(id) {
 		const response = await this._tdata.addItem({
-			"value": "",
+			"Value": "",
 			"Icon": ""
 		});
 		if (response) {
@@ -115,8 +115,8 @@ export default class DataTable extends JetView{
 
 	}
 
-	async updateVal(id, value) {
-		await this._tdata.updateItem(id, value);
+	async updateVal(id, val){
+		await this._tdata.updateItem(id, val);
 	}
 
 	async removeVal(id) {

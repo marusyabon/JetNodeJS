@@ -20,7 +20,7 @@ export default class ContactsView extends JetView {
 									const value = this.$$("listFilter").getValue().toLowerCase();
 									const dateStr = webix.Date.dateToStr("%d %M %Y");
 
-									this.$$("list").filter((obj) => {
+									$$("contactsList").filter((obj) => {
 										for (let key in obj) {
 											if(obj[key]){
 												if (typeof obj[key] === "string" && obj[key].toString().toLowerCase().indexOf(value) != -1) {
@@ -39,7 +39,7 @@ export default class ContactsView extends JetView {
 				},
 				{
 					view: "list",
-					localId: "list",
+					id: "contactsList",
 					width: 300,
 					css: "users_list",
 					select: true,
@@ -82,12 +82,13 @@ export default class ContactsView extends JetView {
 	async init() {
 		const contactsCollection = await ContactsModel.getDataFromServer();
 
-		this.$$("list").parse(contactsCollection);
+		$$("contactsList").parse(contactsCollection);
 
 		this.on(this.app, "onContactDelete", () => {
-			const id = contactsCollection.getFirstId();
+			const firstContact = contactsCollection[0];
+			const id = firstContact.id;
 			if (id) {
-				this.$$("list").select(id);
+				$$("contactsList").select(id);
 			}
 		});
 	}
@@ -95,10 +96,10 @@ export default class ContactsView extends JetView {
 	async urlChange() {
 		const contactsCollection = await ContactsModel.getDataFromServer();
 		// (contactsCollection)
-		const id = this.getParam("id") || this.$$("list").getFirstId();
+		const id = this.getParam("id") || $$("contactsList").getFirstId();
 		const isExist = contactsCollection.find(item => item.id == id)
 		if (id && isExist) {
-			this.$$("list").select(id);
+			$$("contactsList").select(id);
 		}
 	}
 }
