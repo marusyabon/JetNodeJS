@@ -2,7 +2,7 @@ import { JetView } from "webix-jet";
 import ContactsModel from "models/contacts";
 import ActivitiesModel from "models/activities";
 import ActivitytypesModel from "models/activitytypes";
-import {setData} from "common";
+import {modifyActivities, updateData} from "common";
 
 export default class ActivitiesForm extends JetView {
 	config() {
@@ -94,18 +94,9 @@ export default class ActivitiesForm extends JetView {
 		if (id) {
 			this.$$("saveBtn").setValue(_("Save"));
 			this.$$("formPopup").getHead().setHTML(_("Edit activity"));
-			console.log(activities.find(item => item.id == id.row))
 
 			const activitiesArr = webix.copy(activities);
-			let values = activitiesArr.find(item => item.id == id.row);
-
-			let dateTime = values.DueDate;
-
-			values._Date = dateTime;
-			values._Time = dateTime;
-			values.TypeID = values.TypeID["id"];
-			values.ContactID = values.ContactID["id"];
-
+			const values = modifyActivities(activitiesArr, id);
 			formView.setValues(values);
 		}
 
@@ -141,14 +132,14 @@ export default class ActivitiesForm extends JetView {
 				const response = await ActivitiesModel.updateItem(values.id, values);
 				if (response.status == 'server') {
 					const collection = await ActivitiesModel.getDataFromServer();
-					setData(collection, this)
+					updateData(collection, this);
 				}
 			}
 			else {
 				const response = await ActivitiesModel.addItem(values);
 				if (response.status == 'server') {
 					const collection = await ActivitiesModel.getDataFromServer();
-					setData(collection, this);
+					updateData(collection, this);
 				}
 			}
 

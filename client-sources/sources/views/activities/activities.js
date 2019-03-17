@@ -147,23 +147,13 @@ export default class ActivitiesView extends JetView {
 
 	async init() {
 		this.actForm = this.ui(ActivitiesForm);
-		const activitytypesData = await ActivitytypesModel.getDataFromServer();
-		const contactsData = await ContactsModel.getDataFromServer();
+		await ActivitytypesModel.getDataFromServer();
+		await ContactsModel.getDataFromServer();
 
 		const activitiesCollection = await ActivitiesModel.getDataFromServer();
 
 		activitiesCollection.map((item) => {
 			item.TypeID["value"] = item.TypeID["Value"];
-			return item
-		});
-
-		activitytypesData.map((item) => {
-			item.value = item.Value;
-			return item;
-		});
-
-		contactsData.map((item) => {
-			item.value = `${item.FirstName} ${item.FirstName}`;
 			return item;
 		});
 
@@ -204,26 +194,13 @@ export default class ActivitiesView extends JetView {
 				}
 			}
 		);
-		// $$("activitiesTable").getColumnConfig("TypeID").options = activitytypesData;
-		// $$("activitiesTable").getColumnConfig("ContactID").options = contactsData;
-		console.log($$("activitiesTable").getColumnConfig("TypeID"))
-		console.log($$("activitiesTable").getColumnConfig("ContactID"))
 	}
 
 	async removeItem(id) {
 		const response = await ActivitiesModel.removeItem(id);
 
 		if (response) {
-			const collection = await ActivitiesModel.getDataFromServer();
-			if (collection) {
-				$$("activitiesTable").clearAll();
-				$$("activitiesTable").parse(collection);
-			}
+			$$("activitiesTable").remove(id);
 		}
-	}
-
-	async getActivitytypes() {
-		let activitytypesData = await ActivitytypesModel.getDataFromServer();
-		return activitytypesData
 	}
 }

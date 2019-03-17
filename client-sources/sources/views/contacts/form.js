@@ -145,7 +145,7 @@ export default class ContactsForm extends JetView {
 
 		const statuses = statusesCollection.map((item) => {
 			item.value = item.Value;
-			return item
+			return item;
 		});
 
 		this.$$("StatusID").define("suggest", statuses);
@@ -186,11 +186,12 @@ export default class ContactsForm extends JetView {
 			else {
 				await ContactsModel.updateItem(id, {id: id, ...values});
 			}
+
 			const contactsCollection = await ContactsModel.getDataFromServer();
 
 			$$("contactsList").parse(contactsCollection);
 
-			this.show(`/top/contacts.contacts?id=${values._id}/contacts.details`);
+			this.show(`/top/contacts.contacts?id=${values.id}/contacts.details`);
 
 			formView.clearValidation();
 			formView.clear();

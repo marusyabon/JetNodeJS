@@ -95,7 +95,7 @@ export default class ContactsView extends JetView {
 
 	async urlChange() {
 		const contactsCollection = await ContactsModel.getDataFromServer();
-		const id = this.getParam("id") || $$("contactsList").getFirstId();
+		const id = this.getParam("id") || contactsCollection[0].id;
 		const isExist = contactsCollection.find(item => item.id == id)
 		if (id && isExist) {
 			$$("contactsList").select(id);
