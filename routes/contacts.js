@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Contact = require('../models/contacts');
 
-
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 	Contact.find({}).
@@ -14,8 +13,12 @@ router.get('/', function (req, res, next) {
 			response.status = 'error';
 		}
 		else {
+			console.log(data[0].value = data[0])
 			response.status = 'server';
-			response.data = data;
+			response.data = data/*.map(item=>{
+				item.value = `${item.FirstName} ${item.LastName}`;
+				return item;
+			})*/;
 		}
 		res.send(response);
 	})

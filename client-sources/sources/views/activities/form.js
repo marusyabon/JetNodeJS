@@ -2,11 +2,11 @@ import { JetView } from "webix-jet";
 import ContactsModel from "models/contacts";
 import ActivitiesModel from "models/activities";
 import ActivitytypesModel from "models/activitytypes";
+import {setData} from "common";
 
 export default class ActivitiesForm extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
-		const activitytypes = () => {this.getActivitytypes()};
 
 		return {
 			view: "window",
@@ -78,8 +78,10 @@ export default class ActivitiesForm extends JetView {
 
 		const contacts = await ContactsModel.getDataFromServer();
 		const types = await ActivitytypesModel.getDataFromServer();
-		contacts.forEach(item=> item.value = `${item.FirstName} ${item.LastName}`);
-		types.forEach(item=> item.value = item.Value);
+		const activities = await ActivitiesModel.getDataFromServer();
+
+		contacts.forEach(item => item.value = `${item.FirstName} ${item.LastName}`);
+		types.forEach(item => item.value = item.Value);
 
 		this.$$("TypeID").define("suggest", types);
 		this.$$("ContactID").define("suggest", contacts);
@@ -92,15 +94,17 @@ export default class ActivitiesForm extends JetView {
 		if (id) {
 			this.$$("saveBtn").setValue(_("Save"));
 			this.$$("formPopup").getHead().setHTML(_("Edit activity"));
+			console.log(activities.find(item => item.id == id.row))
 
-			let values = webix.copy(ActivitiesModel.getItem(id));
+			const activitiesArr = webix.copy(activities);
+			let values = activitiesArr.find(item => item.id == id.row);
 
 			let dateTime = values.DueDate;
 
 			values._Date = dateTime;
 			values._Time = dateTime;
-			values.TypeID = values.TypeID["_id"];
-			values.ContactID = values.ContactID["_id"];
+			values.TypeID = values.TypeID["id"];
+			values.ContactID = values.ContactID["id"];
 
 			formView.setValues(values);
 		}
@@ -137,45 +141,14 @@ export default class ActivitiesForm extends JetView {
 				const response = await ActivitiesModel.updateItem(values.id, values);
 				if (response.status == 'server') {
 					const collection = await ActivitiesModel.getDataFromServer();
-					if (collection) {
-						let _contactId = this.getParam("id", true);
-						if (_contactId) {
-							const filteredData = collection.filter((item) => {
-								const contactIdVal = item.ContactID;
-								console.log(_contactId);
-								return contactIdVal._id == _contactId;
-							});
-							$$("actTable").clearAll();
-							$$("actTable").parse(filteredData);
-						}
-						else {
-							$$("activitiesTable").clearAll();
-							$$("activitiesTable").parse(collection);
-						}
-
-					}
+					setData(collection, this)
 				}
 			}
 			else {
 				const response = await ActivitiesModel.addItem(values);
 				if (response.status == 'server') {
 					const collection = await ActivitiesModel.getDataFromServer();
-					if (collection) {
-						let _contactId = this.getParam("id", true);
-						if (_contactId) {
-							const filteredData = collection.filter((item) => {
-							const contactIdVal = item.ContactID;
-							console.log(_contactId);
-							return contactIdVal._id == _contactId;
-						});
-							$$("actTabcdle").clearAll();
-							$$("actTable").parse(filteredData);
-						}
-						else {
-							$$("activitiesTable").clearAll();
-							$$("activitiesTable").parse(collection);
-						}
-					}
+					setData(collection, this);
 				}
 			}
 
@@ -183,11 +156,5 @@ export default class ActivitiesForm extends JetView {
 			formView.clear();
 			this.$$("formPopup").hide();
 		}
-	}
-
-	async getActivitytypes() {
-		let activitytypesData = await ActivitytypesModel.getDataFromServer();
-		console.log(activitytypesData)
-		return activitytypesData
 	}
 }

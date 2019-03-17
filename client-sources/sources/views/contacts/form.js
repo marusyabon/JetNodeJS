@@ -29,7 +29,7 @@ export default class ContactsForm extends JetView {
 							rows: [
 								{ view: "text", label: _("First name"), name: "FirstName" },
 								{ view: "text", label: _("Last name"), name: "LastName" },
-								{ view: "datepicker", label: _("Joining date"), name: "StartDate", /*format: webix.Date.dateToStr("%d %M %Y"),*/ },
+								{ view: "datepicker", label: _("Joining date"), name: "StartDate"},
 								{ view: "combo", label: _("Status"), localId: "StatusID", name: "StatusID", suggest: { body: { data: [] } } },
 								{ view: "text", label: _("Job"), name: "Job" },
 								{ view: "text", label: _("Company"), name: "Company" },
@@ -43,7 +43,7 @@ export default class ContactsForm extends JetView {
 								{ view: "text", label: _("Email"), name: "Email" },
 								{ view: "text", label: _("Skype"), name: "Skype" },
 								{ view: "text", label: _("Phone"), name: "Phone" },
-								{ view: "datepicker", label: _("Birthday"), name: "Birthday", /*format: webix.Date.dateToStr("%d %M %Y"),*/ },
+								{ view: "datepicker", label: _("Birthday"), name: "Birthday"},
 								{ view: "text", name: "Photo", localId: "Photo", hidden: true },
 								{
 									margin: 25,
