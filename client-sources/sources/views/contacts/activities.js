@@ -1,15 +1,16 @@
 import {JetView} from "webix-jet";
-import { activities } from "models/activities";
-import { activitytypes } from "models/activitytypes";
+import ActivitiesModel from "models/activities";
+import ActivitytypesModel from "models/activitytypes";
 import ActivitiesForm from "../activities/form";
 
 export default class ActivitiesTable extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
+		const activitytypes = this.getActivitytypes();
 
 		const _table = {
 			view: "datatable",
-			localId: "actTable",
+			id: "actTable",
 			select: true,
 			columns: [
 				{
@@ -22,7 +23,10 @@ export default class ActivitiesTable extends JetView {
 					id: "TypeID",
 					sort: "text",
 					header: [_("Activity type"), { content: "selectFilter" }],
-					options: activitytypes
+					options: activitytypes,
+					template: (val) => {
+						return val.TypeID.value
+					}
 				},
 				{
 					id: "DueDate",
@@ -59,8 +63,7 @@ export default class ActivitiesTable extends JetView {
 						text: _("Confirm_text"),
 						callback: (result) => {
 							if (result) {
-								activities.remove(id);
-								return false;
+								this.removeItem(id);
 							}
 						}
 					});
@@ -69,7 +72,7 @@ export default class ActivitiesTable extends JetView {
 			on: {
 				onAfterFilter: () => {
 					const id = this.getParam("id", true),
-						actTable = this.$$("actTable");
+						actTable = $$("actTable");
 					actTable.blockEvent();
 					actTable.filter((obj) => {
 						return obj.ContactID == id;
@@ -97,36 +100,49 @@ export default class ActivitiesTable extends JetView {
 		};
 	}
 
-	init() {
+	async init() {
 		this.actForm = this.ui(ActivitiesForm);
-
+		const activities = await ActivitiesModel.getDataFromServer();
 		this.on(this.app, "onContactDelete", () => {
 			const id = this.getParam("id", true);
+			let activitiesToRemove = activities.filter(item => item.ContactID["id"] == id);
 
-			let actToRemove = activities.find((item) => {
-				return item.ContactID == id
-			});
-			actToRemove.forEach((item) => {
-				activities.remove(item.id);
-			});
-		});
-	}
-
-	urlChange() {
-		activities.waitData.then(() => {
-			const id = this.getParam("id", true);
-			const dTable = this.$$("actTable");
-
-			// filter by contact id
-
-			if (id) {
-				dTable.sync(activities, () => {
-					dTable.filter((item) => {
-						const contactIdVal = item.ContactID;
-						return contactIdVal._id == id;
-					});
+			if(activitiesToRemove) {
+				activitiesToRemove.forEach((item) => {
+					ActivitiesModel.removeItem(item.id);
 				});
 			}
 		});
+	}
+
+	async urlChange() {
+		const id = this.getParam("id", true);
+		const dTable = $$("actTable");
+
+		// filter by contact id
+
+		if (id) {
+			const activitiesCollection = await ActivitiesModel.getDataFromServer();
+			const filteredData = activitiesCollection
+			.filter(
+				item => item.ContactID["id"] == id
+			)
+			.map((item) =>{
+				item.TypeID["value"] = item.TypeID["Value"];
+				return item;
+			});
+			dTable.clearAll();
+			dTable.parse(filteredData);
+		}
+	}
+
+	async removeItem(id) {
+		const response = await ActivitiesModel.removeItem(id);
+		$$("actTable").remove(id);
+	}
+
+	async getActivitytypes() {
+		let activitytypesData = await ActivitytypesModel.getDataFromServer();
+		return activitytypesData;
 	}
 }

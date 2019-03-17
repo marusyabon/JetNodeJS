@@ -9,6 +9,14 @@ const ActivitiesSchema = new Schema({
 	DueDate: String
 });
 
+ActivitiesSchema.set('toJSON', {
+	virtuals: true,
+	transform: function (doc, ret) {
+		delete ret._id;
+		delete ret.__v;
+	  }
+});
+
 const Activity = mongoose.model('Activity', ActivitiesSchema);
 
 module.exports = Activity;

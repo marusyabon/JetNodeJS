@@ -1,22 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const Status = require('../models/statuses');
-const ObjectID = require('mongodb').ObjectID;
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
 	Status.find({}, function (err, data) {
-		data = data.map((item) => {
-			item.id = ObjectID(item._id);
-			return item
-		});
-
 		const response = {};
 		if (err) {
 			response.status = 'error';
 		}
 		else {
-			response.status = 'success';
+			response.status = 'server';
 			response.data = data;
 		}
 		res.send(response)
@@ -25,21 +19,22 @@ router.get('/', function (req, res, next) {
 
 router.post('/', function (req, res, next) {
 	let status = new Status(req.body);
-	status.save((err) => {
+	status.save((err, item) => {
 		const response = {};
 		if (err) {
 			response.status = 'error';
 		}
 		else {
-			response.status = 'success';
+			response.status = 'server';
+			response.data = item;
 		}
 		res.send(response)
 	});
 });
 
-router.put('/:id', function (req, res, next) {
+router.put('/', function (req, res, next) {
 	Status.findOneAndUpdate(
-		{ _id: ObjectID(req.body._id) },
+		{ _id: req.body.id },
 		{
 			$set: {
 				Value: req.body.Value,
@@ -52,7 +47,7 @@ router.put('/:id', function (req, res, next) {
 				response.status = 'error';
 			}
 			else {
-				response.status = 'success';
+				response.status = 'server';
 				response.data = result;
 			}
 			res.send(response)
@@ -60,9 +55,9 @@ router.put('/:id', function (req, res, next) {
 	);
 });
 
-router.delete('/:id', function (req, res, next) {
+router.delete('/', function (req, res, next) {
 	Status.findOneAndDelete(
-		{ _id: ObjectID(req.body._id) },
+		{ _id: req.body.id },
 		function (err, result) {
 			res.send(result);
 		}

@@ -1,5 +1,5 @@
 import { JetView } from "webix-jet";
-import { contacts } from "models/contacts";
+import ContactsModel from "models/contacts";
 import ActivitiesTable from "./activities";
 import FilesTable from "./files";
 import {detailsTempl} from "../../templates/contacts";
@@ -16,7 +16,7 @@ export default class ContactDetails extends JetView {
 
 		const buttons = {
 			cols: [
-				{ 
+				{
 					view: "button",
 					label: _("Delete"),
 					type: "icon",
@@ -41,7 +41,7 @@ export default class ContactDetails extends JetView {
 		};
 
 		const contactCard = {
-			localId: "contactCard",
+			id: "contactCard",
 			minHeight: 270,
 			template: detailsTempl
 		};
@@ -80,35 +80,39 @@ export default class ContactDetails extends JetView {
 		};
 	}
 
-	urlChange() {
-		contacts.waitData.then(() => {
-			const id = this.getParam("id", true);
-			if (id && contacts.exists(id)) {
-				let contactData = webix.copy(contacts.getItem(id));
-				const StatusIdVal = contactData.StatusID;
-				contactData.StatusID = StatusIdVal.Value;
+	async urlChange() {
+		const contactsCollection = await ContactsModel.getDataFromServer();
 
-				let format = webix.Date.dateToStr("%d-%m-%Y");
-				contactData.Birthday = format(contactData.Birthday);
+		const id = this.getParam("id", true);
+		const target = contactsCollection.find(item => item.id == id);
 
-				this.$$("contactTitle").setValue(contactData.FirstName + " " + contactData.LastName);
-				this.$$("contactCard").setValues(contactData);
-			}
-		});
+		if (id && target) {
+			let contactData = webix.copy(target);
+			contactData.StatusID = contactData.StatusID["Value"];
+
+			let format = webix.Date.dateToStr("%d-%m-%Y");
+			contactData.Birthday = format(contactData.Birthday);
+
+			this.$$("contactTitle").setValue(contactData.FirstName + " " + contactData.LastName);
+			$$("contactCard").setValues(contactData);
+		}
 	}
 
-	removeContact() {
+	async removeContact() {
 		const _ = this.app.getService("locale")._;
 
 		webix.confirm({
 			title: _("Confirm_titile"),
 			text: _("Confirm_text"),
-			callback: (result) => {
+			callback: async (result) => {
 				if (result) {
 					this.app.callEvent("onContactDelete");
 
 					const id = this.getParam("id", true);
-					contacts.remove(id);
+					const result = await ContactsModel.removeItem(id);
+					if(result) {
+						$$("contactsList").remove(id)
+					}
 				}
 			}
 		});

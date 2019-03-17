@@ -1,7 +1,8 @@
 import { JetView } from "webix-jet";
-import { contacts } from "models/contacts";
-import { activities } from "models/activities";
-import { activitytypes } from "models/activitytypes";
+import ContactsModel from "models/contacts";
+import ActivitiesModel from "models/activities";
+import ActivitytypesModel from "models/activitytypes";
+import {modifyActivities, updateData} from "common";
 
 export default class ActivitiesForm extends JetView {
 	config() {
@@ -19,8 +20,8 @@ export default class ActivitiesForm extends JetView {
 				localId: "formView",
 				elements: [
 					{ view: "textarea", label: _("Details"), name: "Details" },
-					{ view: "combo", label: _("Type"), name: "TypeID", options: { body: { template: "#Value#", data: activitytypes } } },
-					{ view: "combo", label: _("Contact"), name: "ContactID", localId: "ContactID", options: { body: { template: "#FirstName# #LastName#", data: contacts } } },
+					{ view: "combo", label: _("Type"), name: "TypeID", localId: "TypeID" },
+					{ view: "combo", label: _("Contact"), name: "ContactID", localId: "ContactID", options: { body: { template: "#FirstName# #LastName#" } } },
 					{
 						margin: 20,
 						cols: [
@@ -72,8 +73,19 @@ export default class ActivitiesForm extends JetView {
 		};
 	}
 
-	showWindow(id) {
+	async showWindow(id) {
 		const _ = this.app.getService("locale")._;
+
+		const contacts = await ContactsModel.getDataFromServer();
+		const types = await ActivitytypesModel.getDataFromServer();
+		const activities = await ActivitiesModel.getDataFromServer();
+
+		contacts.forEach(item => item.value = `${item.FirstName} ${item.LastName}`);
+		types.forEach(item => item.value = item.Value);
+
+		this.$$("TypeID").define("suggest", types);
+		this.$$("ContactID").define("suggest", contacts);
+
 
 		const formView = this.$$("formView");
 		formView.clearValidation();
@@ -83,15 +95,8 @@ export default class ActivitiesForm extends JetView {
 			this.$$("saveBtn").setValue(_("Save"));
 			this.$$("formPopup").getHead().setHTML(_("Edit activity"));
 
-			let values = webix.copy(activities.getItem(id));
-
-			let dateTime = values.DueDate;
-
-			values._Date = dateTime;
-			values._Time = dateTime;
-			values.TypeID = values.TypeID["_id"];
-			values.ContactID = values.ContactID["_id"];
-
+			const activitiesArr = webix.copy(activities);
+			const values = modifyActivities(activitiesArr, id);
 			formView.setValues(values);
 		}
 
@@ -111,7 +116,8 @@ export default class ActivitiesForm extends JetView {
 		this.getRoot().show();
 	}
 
-	saveForm() {
+	async saveForm() {
+
 		const formView = this.$$("formView");
 		const values = formView.getValues();
 
@@ -121,13 +127,20 @@ export default class ActivitiesForm extends JetView {
 		values.DueDate = values._Date;
 		values.DueDate.setHours(h, m);
 
-
 		if (formView.validate()) {
 			if(values.id) {
-				activities.updateItem(values.id, values);
+				const response = await ActivitiesModel.updateItem(values.id, values);
+				if (response.status == 'server') {
+					const collection = await ActivitiesModel.getDataFromServer();
+					updateData(collection, this);
+				}
 			}
 			else {
-				activities.add(values);
+				const response = await ActivitiesModel.addItem(values);
+				if (response.status == 'server') {
+					const collection = await ActivitiesModel.getDataFromServer();
+					updateData(collection, this);
+				}
 			}
 
 			formView.clearValidation();

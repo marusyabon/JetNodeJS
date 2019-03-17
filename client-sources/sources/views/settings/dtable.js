@@ -1,8 +1,9 @@
 import {JetView} from "webix-jet";
 
 export default class DataTable extends JetView{
-	constructor(app,name,data,label,options){
+	constructor(id,app,name,data,label,options){
 		super(app, name);
+		this._id = id;
 		this._tdata = data;
 		this._label = label;
 		this._options = options;
@@ -19,6 +20,7 @@ export default class DataTable extends JetView{
 
 		const _table = {
 			view: "datatable",
+			id: this._id,
 			select: true,
 			editable: true,
 			editaction:"dblclick",
@@ -42,7 +44,13 @@ export default class DataTable extends JetView{
 						}
 					}
 				}
-			]
+			],
+			on: {
+				onDataUpdate: (id, value) => {
+					console.log(id, value);
+					this.updateVal(id, value)
+				}
+			}
 		};
 
 		const addBtn = {
@@ -50,10 +58,7 @@ export default class DataTable extends JetView{
 			label: _("Add"),
 			type: "form",
 			click: () => {
-				this._tdata.add({
-					"Value": "",
-					"Icon": ""
-				});
+				this.addVal()
 			}
 		};
 
@@ -66,8 +71,9 @@ export default class DataTable extends JetView{
 					text: _("Confirm_text"),
 					callback: (result) => {
 						if (result) {
-							const item = this.getRoot().queryView({view:"datatable"}).getSelectedId();
-							this._tdata.remove(item);
+							const itemId = this.getRoot().queryView({view:"datatable"}).getSelectedId();
+							this.removeVal(itemId);
+							$$(this._id).remove(itemId);
 						}
 						return false;
 					}
@@ -88,7 +94,32 @@ export default class DataTable extends JetView{
 		};
 	}
 
-	init(view){
-		view.queryView("datatable").sync(this._tdata);
+	async init(){
+		const collection = this._tdata;
+		const activitiesCollection = await collection.getDataFromServer();
+		$$(this._id).parse(activitiesCollection);
+	}
+
+	async addVal(id) {
+		const response = await this._tdata.addItem({
+			"Value": "",
+			"Icon": ""
+		});
+		if (response) {
+			const collection = await this._tdata.getDataFromServer();
+			if (collection) {
+				$$(this._id).clearAll();
+				$$(this._id).parse(collection);
+			}
+		}
+
+	}
+
+	async updateVal(id, val){
+		await this._tdata.updateItem(id, val);
+	}
+
+	async removeVal(id) {
+		await this._tdata.removeItem(id);
 	}
 }

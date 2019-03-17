@@ -1,12 +1,32 @@
 import { JetView } from "webix-jet";
 import ActivitiesForm from "./form";
-import { activities } from "models/activities";
-import { activitytypes } from "models/activitytypes";
-import { contacts } from "models/contacts";
+import ActivitiesModel from "models/activities";
+import ActivitytypesModel from "models/activitytypes";
+import ContactsModel from "models/contacts";
 
 export default class ActivitiesView extends JetView {
 	config() {
 		const _ = this.app.getService("locale")._;
+
+		const toolbar = {
+			view:"toolbar",
+			cols: [
+				{
+					view: "button",
+					value: "Export",
+					click: () => {
+						webix.toExcel($$("activitiesTable"));
+					}
+				},
+				{
+					view: "button",
+					value: "Refresh",
+					click: () => {
+						$$("activitiesTable").refresh()
+					}
+				}
+			]
+		};
 
 		const tabBar = {
 			cols: [
@@ -26,7 +46,7 @@ export default class ActivitiesView extends JetView {
 					],
 					on: {
 						"onChange":  () => {
-							this.$$("actTable").filterByAll();
+							$$("activitiesTable").filterByAll();
 						}
 					}
 				},
@@ -43,7 +63,7 @@ export default class ActivitiesView extends JetView {
 
 		const actTable = {
 			view: "datatable",
-			localId: "actTable",
+			id: "activitiesTable",
 			select: true,
 			columns: [
 				{
@@ -56,11 +76,9 @@ export default class ActivitiesView extends JetView {
 					id: "TypeID",
 					sort: "text",
 					header: [_("Activity type"), { content: "selectFilter" }],
-					options: activitytypes,
 					template: (val) => {
-						val.Value
+						return val.TypeID.value
 					}
-					// template: "#Value#"
 				},
 				{
 					id: "DueDate",
@@ -78,8 +96,9 @@ export default class ActivitiesView extends JetView {
 					id: "ContactID",
 					sort: "text",
 					header: [_("Contact"), { content: "selectFilter" }],
-					options: contacts,
-					// template: "#FirstName# #LastName#"
+					template: (val) => {
+						return `${val.ContactID.FirstName} ${val.ContactID.LastName}`
+					}
 				},
 				{
 					id: "EditAct",
@@ -103,8 +122,8 @@ export default class ActivitiesView extends JetView {
 						title: _("Confirm_titile"),
 						text: _("Confirm_text"),
 						callback: (result) => {
-							if (result) {
-								activities.remove(id);
+							if(result) {
+								this.removeItem(id);
 							}
 							return false;
 						}
@@ -113,24 +132,34 @@ export default class ActivitiesView extends JetView {
 			},
 			on: {
 				onAfterFilter: () => {
-					this.$$("actTable").filter((obj) => {
+					$$("actTable").filter((obj) => {
 						const filter = this.$$("actFilter").getValue();
 						return this.actFiltering(obj, filter);
 					}, "", true);
 				}
-			},
+			}
 		};
 
 		return {
-			rows: [tabBar, actTable]
+			rows: [tabBar, toolbar, actTable]
 		};
 	}
 
-	init() {
-		this.$$("actTable").sync(activities);
+	async init() {
 		this.actForm = this.ui(ActivitiesForm);
+		await ActivitytypesModel.getDataFromServer();
+		await ContactsModel.getDataFromServer();
 
-		this.$$("actTable").registerFilter(
+		const activitiesCollection = await ActivitiesModel.getDataFromServer();
+
+		activitiesCollection.map((item) => {
+			item.TypeID["value"] = item.TypeID["Value"];
+			return item;
+		});
+
+		$$("activitiesTable").parse(activitiesCollection);
+
+		$$("activitiesTable").registerFilter(
 			this.$$("actFilter"),
 			{
 				compare: (cellValue, filterValue, obj) => {
@@ -165,5 +194,13 @@ export default class ActivitiesView extends JetView {
 				}
 			}
 		);
+	}
+
+	async removeItem(id) {
+		const response = await ActivitiesModel.removeItem(id);
+
+		if (response) {
+			$$("activitiesTable").remove(id);
+		}
 	}
 }

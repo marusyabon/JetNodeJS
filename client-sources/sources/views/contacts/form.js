@@ -1,6 +1,7 @@
 import {JetView} from "webix-jet";
-import {contacts} from "models/contacts";
-import {statuses} from "models/statuses";
+import ContactsModel from "models/contacts";
+import StatusesModel from "models/statuses";
+import {isExist} from "common";
 
 export default class ContactsForm extends JetView {
 	config() {
@@ -28,8 +29,8 @@ export default class ContactsForm extends JetView {
 							rows: [
 								{ view: "text", label: _("First name"), name: "FirstName" },
 								{ view: "text", label: _("Last name"), name: "LastName" },
-								{ view: "datepicker", label: _("Joining date"), name: "StartDate", /*format: webix.Date.dateToStr("%d %M %Y"),*/ },
-								{ view: "combo", label: _("Status"), name: "StatusID", options: { body: { template: "#Value#", data: statuses } } },
+								{ view: "datepicker", label: _("Joining date"), name: "StartDate"},
+								{ view: "combo", label: _("Status"), localId: "StatusID", name: "StatusID", suggest: { body: { data: [] } } },
 								{ view: "text", label: _("Job"), name: "Job" },
 								{ view: "text", label: _("Company"), name: "Company" },
 								{ view: "text", label: _("Website"), name: "Website" },
@@ -42,7 +43,7 @@ export default class ContactsForm extends JetView {
 								{ view: "text", label: _("Email"), name: "Email" },
 								{ view: "text", label: _("Skype"), name: "Skype" },
 								{ view: "text", label: _("Phone"), name: "Phone" },
-								{ view: "datepicker", label: _("Birthday"), name: "Birthday", /*format: webix.Date.dateToStr("%d %M %Y"),*/ },
+								{ view: "datepicker", label: _("Birthday"), name: "Birthday"},
 								{ view: "text", name: "Photo", localId: "Photo", hidden: true },
 								{
 									margin: 25,
@@ -137,35 +138,38 @@ export default class ContactsForm extends JetView {
 		};
 	}
 
-	init() {
+	async init() {
 		const _ = this.app.getService("locale")._;
-		webix.promise.all([
-			contacts.waitData,
-			statuses.waitData
-		]).then(() => {
+		const contactsCollection = await ContactsModel.getDataFromServer();
+		const statusesCollection = await StatusesModel.getDataFromServer();
 
-			const id = this.getParam("id", true);
-			const isNew = this.getParam("new", true);
-
-			if (isNew) {
-				this.$$("formLabel").setValue(_("Add contact"));
-				this.$$("saveBtn").setValue(_("Add"));
-			}
-
-			if (!isNew && id && contacts.exists(id)) {
-				const contactData = webix.copy(contacts.getItem(id));
-				const statusIdVal = contactData.StatusID;
-				const flag = statuses.exists(statusIdVal._id);
-
-				contactData.StatusID = flag ? statuses.getItem(statusIdVal._id).id : {};
-
-				this.$$("cPhoto").setValues(contactData);
-				this.$$("contactForm").setValues(contactData);
-			}
+		const statuses = statusesCollection.map((item) => {
+			item.value = item.Value;
+			return item;
 		});
+
+		this.$$("StatusID").define("suggest", statuses);
+
+		const id = this.getParam("id", true);
+		const isNew = this.getParam("new", true);
+
+		if (isNew) {
+			this.$$("formLabel").setValue(_("Add contact"));
+			this.$$("saveBtn").setValue(_("Add"));
+		}
+
+		if (!isNew && id && isExist(contactsCollection, id)) {
+			const contactData = webix.copy(contactsCollection.find(item => item.id == id));
+			const statusData = webix.copy(statusesCollection.find(item => item.id == contactData.StatusID["id"]));
+
+			contactData.StatusID = statusData ? statusData.id : {};
+
+			this.$$("cPhoto").setValues(contactData);
+			this.$$("contactForm").setValues(contactData);
+		}
 	}
 
-	saveForm () {
+	async saveForm () {
 		const formView = this.$$("contactForm");
 
 		const photoUrl = this.$$("cPhoto").getValues();
@@ -176,9 +180,18 @@ export default class ContactsForm extends JetView {
 			const id = this.getParam("id", true);
 			const isNew = this.getParam("new", true);
 
-			isNew ? contacts.add(values) : contacts.updateItem(values.id, values);
+			if(isNew) {
+				await ContactsModel.addItem(values);
+			}
+			else {
+				await ContactsModel.updateItem(id, {id: id, ...values});
+			}
 
-			this.show(`/top/contacts.contacts?id=${values._id}/contacts.details`);
+			const contactsCollection = await ContactsModel.getDataFromServer();
+
+			$$("contactsList").parse(contactsCollection);
+
+			this.show(`/top/contacts.contacts?id=${values.id}/contacts.details`);
 
 			formView.clearValidation();
 			formView.clear();

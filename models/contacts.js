@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ContactSchema = new Schema({
-	id: String,
     FirstName: String,
 	LastName: String,
 	StatusID: {type: Schema.Types.ObjectId, ref: "Statuse"},
@@ -14,6 +13,14 @@ const ContactSchema = new Schema({
 	Birthday: String,
 	StartDate: String,
 	Address: String
+});
+
+ContactSchema.set('toJSON', {
+	virtuals: true,
+	transform: function (doc, ret) {
+		delete ret._id;
+		delete ret.__v;
+	  }
 });
 
 const Contact = mongoose.model('Contact', ContactSchema);

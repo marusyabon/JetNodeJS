@@ -1,7 +1,7 @@
 import { JetView } from "webix-jet";
 import DataTable from "./dtable";
-import { activitytypes } from "models/activitytypes";
-import { statuses } from "models/statuses";
+import ActivitytypesModel from "models/activitytypes";
+import StatusesModel from "models/statuses";
 
 export default class SettingsView extends JetView {
 	config() {
@@ -28,7 +28,7 @@ export default class SettingsView extends JetView {
 				{
 					cols: [
 						{
-							$subview: new DataTable(this.app, "", activitytypes, _("Activity types"), [
+							$subview: new DataTable("activitytypesDt",this.app, "", ActivitytypesModel, _("Activity types"), [
 								"flag",
 								"comment",
 								"clock",
@@ -37,7 +37,7 @@ export default class SettingsView extends JetView {
 							])
 						},
 						{
-							$subview: new DataTable(this.app, "", statuses, _("Statuses"), [
+							$subview: new DataTable("statusesDt",this.app, "", StatusesModel, _("Statuses"), [
 								"sync",
 								"exclamation",
 								"clock",
